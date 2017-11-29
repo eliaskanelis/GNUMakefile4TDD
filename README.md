@@ -5,8 +5,8 @@
 > GNU Make makefile for cross-compile and Test driven development in C for
 > dual-targeted environments
 
-Uses the **STM32F072RB** micro-controller from ST with various peripherals but
-it can adapt to any embedded platform.
+Uses the **STM32F072RB** micro-controller from ST but it can adapt to any 
+embedded platform.
 
 ### Dependencies:
 
@@ -49,8 +49,7 @@ Optional:
 1. Segger JLink drivers
 2. Saleae logic analyser
 3. picocom
-4. STM32CubeMx
-5. chromium-browser
+4. chromium-browser
 
 ```sh
 sudo apt-get update

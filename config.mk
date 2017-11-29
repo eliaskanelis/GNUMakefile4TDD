@@ -17,7 +17,7 @@
 
 EXEC =						TDD_Project
 
-PLATFORM =					host
+PLATFORM =					target
 
 TARGET_TC_PATH =			~/opt/gcc-arm-none-eabi-6-2017-q2-update/bin/
 
