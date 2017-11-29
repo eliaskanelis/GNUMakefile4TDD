@@ -15,7 +15,7 @@
 #          |   |    Maintainer:                              |    |
 #          |   |    Kanelis Ilias (hkanelhs@yahoo.gr)        |    |
 #          |   |                                             |    |
-#          |   |    URL:                                     |    |
+#          |   |    Github:    TediCreations/GNUMakefile4TDD |    |
 #          |   |    Version:   Beta                          |    |
 #          |   |    Date:      2017/11/17                    |    |
 #          |   |                                             |    |

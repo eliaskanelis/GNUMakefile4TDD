@@ -6,7 +6,7 @@
 > dual-targeted environments
 
 Uses the **STM32F072RB** micro-controller from ST with various peripherals but
-it can adapt to any micro-controller.
+it can adapt to any embedded platform.
 
 ### Dependencies:
 
