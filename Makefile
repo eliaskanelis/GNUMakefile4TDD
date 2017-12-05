@@ -81,20 +81,22 @@
 #
 #-------------------------------------------------------------------------------
 #
-#	USER_CXX_INCs		C++ include directories.			
-#	USER_CXX_SRCs		C++ source directories.				
-#	USER_C_INCs			C include directories.				
-#	USER_C_SRCs			C source directories.				
+#	USER_CXX_INCs		C++ include directories.		(TODO)
+#	USER_CXX_SRCs		C++ source directories.			(TODO)
+#	USER_C_INCs			C include directories.			
+#	USER_C_SRCs			C source directories.			
+#	USER_ASM_INCs		Assembry include directories.	
+#	USER_ASM_SRCs		Assembry source directories.	
 #
-#	USER_TEST_CXX_INCs	Test C++ include directories.		
-#	USER_TEST_CXX_SRCs	Test C++ source directories.		
-#	USER_TEST_C_INCs	Test C include directories.			
-#	USER_TEST_C_SRCs	Test C source directories.			
+#	USER_TEST_CXX_INCs	Test C++ include directories.	
+#	USER_TEST_CXX_SRCs	Test C++ source directories.	
+#	USER_TEST_C_INCs	Test C include directories.		
+#	USER_TEST_C_SRCs	Test C source directories.		
 #
-#	USER_ASFLAGS		Assembler extra flags.				
-#	USER_CFLAGS			C compiler extra flags.				
-#	USER_LDFLAGS		Linker extra flags.					
-#	TARGET_LDSCRIPT		Path of the target linker			
+#	USER_ASFLAGS		Assembler extra flags.			
+#	USER_CFLAGS			C compiler extra flags.			
+#	USER_LDFLAGS		Linker extra flags.				
+#	TARGET_LDSCRIPT		Path of the target linker		
 #						script.	
 #-------------------------------------------------------------------------------
 
@@ -265,7 +267,7 @@ INC_DIR :=				inc/
 SRC_DIR :=				src/
 DOC_DIR :=				doc/
 TMP_DIR :=				tmp/
-LIB_DIR :=					
+LIB_DIR :=				
 TESTS_DIR := 			tests/
 PORT_DIR :=				port/
 
@@ -389,32 +391,13 @@ HELP_FUNC := \
 #-------------------------------------------------------------------------------
 #						Host
 
-ifeq ($(PLATFORM),host)
-  #	Linux
-  ASM_INCs =			$(USER_ASM_INCs)
+ASM_INCs =				$(USER_ASM_INCs)
 
-  ASM_SRCs =			$(USER_ASM_SRCs)
+ASM_SRCs =				$(USER_ASM_SRCs)
 
-  C_INCs =				$(USER_C_INCs)
+C_INCs =				$(USER_C_INCs)
 
-  C_SRCs =				$(USER_C_SRCs)
-
-endif
-
-#-------------------------------------------------------------------------------
-#						Target
-
-ifeq ($(PLATFORM),target)
-  # ARM
-  ASM_INCs =			$(USER_ASM_INCs)
-
-  ASM_SRCs =			$(USER_ASM_SRCs)
-
-  C_INCs =				$(USER_C_INCs)
-
-  C_SRCs =				$(USER_C_SRCs)	
-					
-endif
+C_SRCs =				$(USER_C_SRCs)	
 
 #-------------------------------------------------------------------------------
 #						Tests
@@ -485,10 +468,11 @@ endif
 ASFLAGS +=				$(FLAGS)\
 						$(ASM_INCs)
 
-ASFFLAGS +=				$(USER_ASFLAGS)
+ASFLAGS +=				$(USER_ASFLAGS)
 
 ifeq ($(PLATFORM),target)
 
+  ASFLAGS +=			$(MCU)
   CFLAGS +=				$(MCU)
 
 endif
@@ -700,10 +684,15 @@ endif
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
+									au-ds.lnt \
+									au-barr10.lnt \
+									au-netrino.lnt \
+									au-misra1.lnt \
+									au-misra2.lnt \
+									au-misra3.lnt \
 									options.lnt \
 									temp.lnt \
-									au-ds.lnt \
-									-i$(INC_DIR) \
+									$(C_INCs) \
 									$(C_SRCs) | tr '\\\r' '/ '
 	@echo
 	$(PASS)
@@ -719,10 +708,10 @@ endif
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
-									options.lnt \
 									au-barr10.lnt \
+									options.lnt \
 									temp.lnt \
-									-i$(INC_DIR) \
+									$(C_INCs) \
 									$(C_SRCs) | tr '\\\r' '/ '
 	@echo
 	$(PASS)
@@ -738,10 +727,10 @@ endif
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
-									options.lnt \
 									au-netrino.lnt \
+									options.lnt \
 									temp.lnt \
-									-i$(INC_DIR) \
+									$(C_INCs) \
 									$(C_SRCs) | tr '\\\r' '/ '
 	@echo
 	$(PASS)
@@ -757,10 +746,10 @@ endif
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
-									options.lnt \
 									au-misra1.lnt \
+									options.lnt \
 									temp.lnt \
-									-i$(INC_DIR) \
+									$(C_INCs) \
 									$(C_SRCs) | tr '\\\r' '/ '
 	@echo
 	$(PASS)
@@ -776,10 +765,10 @@ endif
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
-									options.lnt \
 									au-misra2.lnt \
+									options.lnt \
 									temp.lnt \
-									-i$(INC_DIR) \
+									$(C_INCs) \
 									$(C_SRCs) | tr '\\\r' '/ '
 	@echo
 	$(PASS)
@@ -795,10 +784,10 @@ endif
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
-									options.lnt \
 									au-misra3.lnt \
+									options.lnt \
 									temp.lnt \
-									-i$(INC_DIR) \
+									$(C_INCs) \
 									$(C_SRCs) | tr '\\\r' '/ '
 	@echo
 	$(PASS)
