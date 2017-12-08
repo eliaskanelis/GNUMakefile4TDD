@@ -85,16 +85,16 @@ make help
 ```
 ![alt text](media/makeHelp.png "make help")
 
-Build with ARM as target:
+Build with GNU/Linux as target:
 
 ```sh
 make all
 ```
 
-Build with GNU/Linux as target:
+Build with ARM as target:
 
 ```sh
-make PLATFORM=host all
+make PLATFORM=target all
 ```
 
 Eclipse:
