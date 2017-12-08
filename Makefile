@@ -302,7 +302,7 @@ ifeq ($(COLORS),NO)
   # Show a msg with color
   # use $(call MSG,"msg",colorNum)
   define MSG
-    @${ECHO_N}			$1
+    @$(ECHO_N)		$1
   endef
 
   # TPUT COLORS
@@ -326,7 +326,7 @@ else
   define MSG
     @tput bold
     @tput -Txterm setaf $2
-    @${ECHO_N} $1
+    @$(ECHO_N)		$1
     @tput -Txterm sgr0
   endef
 
@@ -417,15 +417,15 @@ OBJECTS +=			$(addprefix $(OBJ_DIR)$(TARGET_DIR),$(AS_SRCs:%.s=%.o))
 #...............................................#
 
 # Tests C++ source files
-TEST_CXX_SRCs :=	$(filter-out src/main.cpp, $(wildcard $(SRC_DIR)*.cpp))
-TEST_CXX_SRCs +=	$(wildcard $(TESTS_DIR)*.cpp)
-TEST_CXX_SRCs +=	$(wildcard $(PORT_DIR)x86_64/*.cpp)
+TEST_CXX_SRCs :=	$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
+TEST_CXX_SRCs +=	$(shell find $(TESTS_DIR) -name "*.cpp")
+TEST_CXX_SRCs +=	$(shell find $(PORT_DIR)x86_64/ -name "*.cpp")
 TEST_CXX_SRCs +=	$(USER_TEST_CXX_SRCs)
 
 # Tests C source files
-TEST_C_SRCs :=		$(filter-out src/main.c, $(wildcard $(SRC_DIR)*.c))
-TEST_C_SRCs +=		$(wildcard $(TESTS_DIR)*.c)
-TEST_C_SRCs +=		$(wildcard $(PORT_DIR)x86_64/*.c)
+TEST_C_SRCs :=		$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
+TEST_C_SRCs +=		$(shell find $(TESTS_DIR) -name "*.c")
+TEST_C_SRCs +=		$(shell find $(PORT_DIR)x86_64/ -name "*.c")
 TEST_C_SRCs +=		$(USER_TEST_C_SRCs)
 
 # Tests Object files
@@ -1115,22 +1115,22 @@ $(OBJ_DIR)$(TESTS_DIR)%.o: %.c
 
 .PHONY: config
 config:
-	@$(ECHO)		"PLATFORM:     ${PLATFORM}\n"
-	@$(ECHO)		"BUILD_MODE:   ${BUILD_MODE}\n"
-	@$(ECHO)		"TARGET_DIR:   ${TARGET_DIR}\n"
-	@$(ECHO)		"CFLAGS:       ${CFLAGS}\n"
-	@$(ECHO)		"CXXFLAGS:     ${CXXFLAGS}\n"
-	@$(ECHO)		"CPPFLAGS:     ${CPPFLAGS}\n"
-	@$(ECHO)		"LDFLAGS:      ${LDFLAGS}\n"
-	@$(ECHO)		"ASFLAGS:      ${ASFLAGS}\n"
-	@$(ECHO)		"CXX_SRCs:     ${CXX_SRCs}\n"
-	@$(ECHO)		"AS_SRCs:      ${AS_SRCs}\n"
-	@$(ECHO)		"C_SRCs:       ${C_SRCs}\n"
-	@$(ECHO)		"CXX_SRCs:     ${CXX_SRCs}\n"
-	@$(ECHO)		"INCLUDES:     ${INCLUDES}\n"
-	@$(ECHO)		"OBJECTS:      ${OBJECTS}\n"
-	@$(ECHO)		"TEST_OBJECTS: ${TEST_OBJECTS}\n"
-	@$(ECHO)		"TEST_OBJECTS2:${TEST_OBJECTS2}\n"
+	@$(ECHO)		"PLATFORM:     $(PLATFORM)\n"
+	@$(ECHO)		"BUILD_MODE:   $(BUILD_MODE)\n"
+	@$(ECHO)		"TARGET_DIR:   $(TARGET_DIR)\n"
+	@$(ECHO)		"CFLAGS:       $(CFLAGS)\n"
+	@$(ECHO)		"CXXFLAGS:     $(CXXFLAGS)\n"
+	@$(ECHO)		"CPPFLAGS:     $(CPPFLAGS)\n"
+	@$(ECHO)		"LDFLAGS:      $(LDFLAGS)\n"
+	@$(ECHO)		"ASFLAGS:      $(ASFLAGS)\n"
+	@$(ECHO)		"CXX_SRCs:     $(CXX_SRCs)\n"
+	@$(ECHO)		"AS_SRCs:      $(AS_SRCs)\n"
+	@$(ECHO)		"C_SRCs:       $(C_SRCs)\n"
+	@$(ECHO)		"CXX_SRCs:     $(CXX_SRCs)\n"
+	@$(ECHO)		"INCLUDES:     $(INCLUDES)\n"
+	@$(ECHO)		"OBJECTS:      $(OBJECTS)\n"
+	@$(ECHO)		"TEST_OBJECTS: $(TEST_OBJECTS)\n"
+	@$(ECHO)		"TEST:         $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(C_SRCs))))\n"
 
 ################################################################################
 # WARNING!!! This must be at the end for auto-dependency to work
