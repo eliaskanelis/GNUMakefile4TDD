@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+#include "board.h"
+
 /******************************************************************************
 	Code
 ******************************************************************************/
@@ -11,6 +13,7 @@
 int main( void )
 {
 	printf( "Hello world!\n" );
+	printf( "Board name: %s!\n", getBoardName() );
 
 	/* Will never reach here. Will never return... */
 	return 0;
