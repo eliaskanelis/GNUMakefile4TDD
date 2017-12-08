@@ -13,10 +13,10 @@ embedded platform.
 All of these are satisfied but need improvement.
 
 1. Test driven development (cppUtest)
-2. Multi-architecture Build (GNU/Linux & microcintroller)
+2. Multi-architecture Build (GNU/Linux & micro-controller)
 3. Lint (pc-lint)
 4. Documentation generation (doxygen)
-5. Flash, erase etc. microcontroller
+5. Flash, erase etc. micro-controller
 6. Debugging (gdb or other)
 7. Auto versioning( git or other )
 8. Color output
