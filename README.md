@@ -21,6 +21,7 @@ All of these are satisfied but need improvement.
 7. Auto versioning( git or other )
 8. Color output
 9. Support C/C++ and assembly.
+10. Auto-dependency in build rules.
 
 ### Dependencies
 
