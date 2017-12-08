@@ -16,15 +16,23 @@
 
 EXEC =				TDD_Project
 
-PLATFORM =			target
+PLATFORM =			host
 
-CPPUTEST_DIR =		~/opt/cpputest/
+#...............................................#
+# Documentation information
 
 PROJECT_NAME =		First embedded TDD project
 
 PROJECT_BRIEF =		This is a clean 'hello world' C project for \
 					Test driven development in embedded systems
 
+#...............................................#
+# TDD
+
+CPPUTEST_DIR =		~/opt/cpputest/
+
+#...............................................#
+# CPU
 
 TARGET_CPU =		cortex-m0
 TARGET_TC_PATH =	~/opt/gcc-arm-none-eabi-6-2017-q2-update/bin/
@@ -32,7 +40,8 @@ TARGET_TC_PATH =	~/opt/gcc-arm-none-eabi-6-2017-q2-update/bin/
 TARGET_LDSCRIPT =	port/cortex-m0/STM32F072RBTx_FLASH.ld
 
 #...............................................#
-#						STM32 CMSIS drivers
+# STM32 CMSIS drivers
+
 ifeq ($(PLATFORM),target)
   USER_CPPFLAGS =	-DSTM32F072xB
 

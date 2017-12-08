@@ -509,7 +509,7 @@ endif
 CPPFLAGS +=			-fdata-sections\
 					-ffunction-sections
 
-# MCU flags
+  # CPU architecture
 ifeq ($(PLATFORM),target)
   ifeq ($(TARGET_CPU),)
     $(error "TARGET_CPU" is not set)
@@ -547,6 +547,16 @@ LDFLAGS =			-L$(LIB_DIR)\
 
 # Target linker flags
 ifeq ($(PLATFORM),target)
+
+  # CPU architecture
+  ifeq ($(TARGET_CPU),)
+    $(error "TARGET_CPU" is not set)
+  endif
+  TARGET_FPU ?=		
+  TARGET_FLOAT_ABI ?=
+  LDFLAGS +=		-mcpu=$(TARGET_CPU)\
+					-mthumb $(TARGET_FPU)\
+					$(TARGET_FLOAT_ABI)
 
   # Linker script
   ifeq ($(TARGET_LDSCRIPT),)
