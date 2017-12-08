@@ -1135,6 +1135,6 @@ config:
 ################################################################################
 # WARNING!!! This must be at the end for auto-dependency to work
 
--include $(wildcard $(patsubst %,$(OBJ_DIR)%.d,$(basename $(CΧΧ_SRCs))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)%.d,$(basename $(C_SRCs))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)%.d,$(basename $(AS_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(CΧΧ_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(C_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(AS_SRCs))))
