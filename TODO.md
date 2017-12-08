@@ -1,5 +1,5 @@
 ### GNU Makefile project for cross-compile and TDD in C
 
-## General ideas
+## Todo list
 
-- Automatic include dependencies (DEP)
+Is empty!

@@ -8,7 +8,21 @@
 Uses the **STM32F072RB** micro-controller from ST but it can adapt to any 
 embedded platform.
 
-### Dependencies:
+### Goals
+
+All of these are satisfied but need improvement.
+
+1. Test driven development (cppUtest)
+2. Multi-architecture Build (GNU/Linux & microcintroller)
+3. Lint (pc-lint)
+4. Documentation generation (doxygen)
+5. Flash, erase etc. microcontroller
+6. Debugging (gdb or other)
+7. Auto versioning( git or other )
+8. Color output
+9. Support C/C++ and assembly.
+
+### Dependencies
 
 Required:
 
