@@ -16,8 +16,8 @@
 #          |   |    Kanelis Ilias (hkanelhs@yahoo.gr)        |    |
 #          |   |                                             |    |
 #          |   |    Github:    TediCreations/GNUMakefile4TDD |    |
-#          |   |    Version:   Beta                          |    |
-#          |   |    Date:      2017/11/17                    |    |
+#          |   |    Version:   Beta_2                        |    |
+#          |   |    Date:      2017/12/9                     |    |
 #          |   |                                             |    |
 #          |   |    License:   MIT                           |    |
 #          |   |_____________________________________________|    |
@@ -76,25 +76,24 @@
 #
 #-------------------------------------------------------------------------------
 #
-#	COLORS				Make output in color.			Any  = Color output.
-#														NO = No color output.
+#	COLORS				Make output in color.			YES = Color output.
+#														NO  = No color output.
 #
 #-------------------------------------------------------------------------------
 #
-#	USER_CXX_INCs		C++ include directories.		(TODO)
-#	USER_CXX_SRCs		C++ source directories.			(TODO)
-#	USER_C_INCs			C include directories.			
+#	USER_INCLUDES		C/C++/Asm include directories.	
+#
+#	USER_CXX_SRCs		C++ source directories.					
 #	USER_C_SRCs			C source directories.			
-#	USER_ASM_INCs		Assembry include directories.	
 #	USER_ASM_SRCs		Assembry source directories.	
 #
-#	USER_TEST_CXX_INCs	Test C++ include directories.	
 #	USER_TEST_CXX_SRCs	Test C++ source directories.	
-#	USER_TEST_C_INCs	Test C include directories.		
 #	USER_TEST_C_SRCs	Test C source directories.		
 #
-#	USER_ASFLAGS		Assembler extra flags.			
+#	USER_CXXFLAGS		C++ compiler extra flags.		
 #	USER_CFLAGS			C compiler extra flags.			
+#	USER_ASFLAGS		Assembler extra flags.			
+#	USER_CPPFLAGS		Preprossesor extra flags.			
 #	USER_LDFLAGS		Linker extra flags.				
 #	TARGET_LDSCRIPT		Path of the target linker		
 #						script.	
