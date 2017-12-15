@@ -417,17 +417,6 @@ TARGET_CPPFLAGS =	$(CPPFLAGS)\
 					$(USER_TARGET_CPPFLAGS)\
 					$(USER_CPPFLAGS)
 
-ifeq ($(CPU),)
-  $(error "CPU" is not set)
-endif
-
-FPU ?=	
-FLOAT_ABI ?=
-
-TARGET_CPPFLAGS +=	-mcpu=$(CPU)\
-					-mthumb $(FPU)\
-					$(FLOAT_ABI)
-
 #..............................................................................#
 # Test compiler preprossesor flags
 TEST_CPPFLAGS =		$(CPPFLAGS)\
@@ -1089,7 +1078,7 @@ $(BIN_DIR)$(TARGET_DIR)$(EXEC).size: $(BIN_DIR)$(TARGET_DIR)$(EXEC).hex
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.cpp $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CXX_TARGET)	$< -c $(TARGET_CXXFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
+	@$(CXX_TARGET)	$< -c $(TARGET_CXXFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
 	$(PASS)
 
@@ -1097,7 +1086,7 @@ $(OBJ_DIR)$(TARGET_DIR)%.o: %.cpp $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.c $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CC_TARGET)	$< -c $(TARGET_CFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.c=.lst)) -o $@
+	@$(CC_TARGET)	$< -c $(TARGET_CFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.c=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
 	$(PASS)
 
@@ -1105,7 +1094,7 @@ $(OBJ_DIR)$(TARGET_DIR)%.o: %.c $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.s $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(AS_TARGET)	$< -c $(TARGET_ASFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -o $@
+	@$(AS_TARGET)	$< -c $(TARGET_ASFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
 	$(PASS)
 
