@@ -1,5 +1,7 @@
 ### GNU Makefile project for cross-compile and TDD in C
 
+[![Build Status](https://travis-ci.org/TediCreations/GNUMakefile4TDD.svg?branch=master)](https://travis-ci.org/TediCreations/GNUMakefile4TDD)
+
 ### Description
 
 > GNU Make makefile for cross-compile and Test driven development in C for
