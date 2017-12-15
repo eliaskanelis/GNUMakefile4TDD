@@ -37,6 +37,9 @@ extern "C"
 ******************************************************************************/
 
 const char* getBoardName( void );
+void		bsp_setup_led( void );
+void		bsp_led_on( void );
+void		bsp_led_off( void );
 
 #ifdef __cplusplus
 }
