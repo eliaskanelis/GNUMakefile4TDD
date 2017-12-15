@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/TediCreations/GNUMakefile4TDD.svg?branch=master)](https://travis-ci.org/TediCreations/GNUMakefile4TDD)
 
+*SOS: Someone please help me set Travis CI correctly...*
+
 ### Description
 
 > GNU Make makefile for cross-compile and Test driven development in C for
@@ -78,9 +80,6 @@ sudo apt-get install chromium-browser
 ```
 
 ### How to use
-
-Create config.mk in the same directory as Makefile and configure your project.
-It is included as a dependancy in the Makefile.
 
 To see available targets and help information:
 

@@ -1,6 +1,3 @@
 language: C
 compiler: gcc
-script: make
-script: make all
 script: make clean
-script: make run
