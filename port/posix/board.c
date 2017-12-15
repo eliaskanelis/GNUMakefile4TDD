@@ -42,5 +42,7 @@ void bsp_led_off( void )
 
 void bsp_delay( const uint32_t num )
 {
-	printf( "Delay...\n" );
+	#if 0
+		printf( "Delay...\n" );
+	#endif
 }

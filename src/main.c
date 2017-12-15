@@ -6,6 +6,8 @@
 
 #include "board.h"
 
+#include "version.h"
+
 /******************************************************************************
 	Code
 ******************************************************************************/
@@ -14,6 +16,7 @@ int main( void )
 {
 	printf( "Hello world!\n" );
 	printf( "Board name: %s!\n", getBoardName() );
+	printf( "Version:    v%s\n", VERSION );
 
 	/* Test led */
 	bsp_setup_led();

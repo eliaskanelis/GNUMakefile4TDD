@@ -39,6 +39,7 @@ ifeq ($(CPPUTEST_DIR),)
   $(error 'CPPUTEST_DIR' is not specified)
 endif
 
+# We need sed, check if it exists
 ifndef SED_EXISTS
 	$(error "Please install 'sed' scripting language!")
 endif
@@ -149,25 +150,96 @@ BIN_TARGET ?=		$(TARGET_TC_PATH)$(TARGET_TC_PREFIX)objcopy -O binary -S
 #..............................................................................#
 #	Tools
 
-ECHO ?=				@echo
-ECHO_N ?=			@echo -n
+ECHO ?=				echo
+ECHO_N ?=			echo -n
 MKDIR_P ?=			@mkdir -p
 RM_FR ?=			@rm -fR
 MV_F ?=				@mv -f
 TOUCH ?=			touch
 SED ?=				sed
 
-#..............................................................................#
-#	Messages
+################################################################################
+#	 _    _ _   _ _ _ _   _           
+#	| |  | | | (_) (_) | (_)          
+#	| |  | | |_ _| |_| |_ _  ___  ___ 
+#	| |  | | __| | | | __| |/ _ \/ __|
+#	| |__| | |_| | | | |_| |  __/\__ \
+#	 \____/ \__|_|_|_|\__|_|\___||___/
+#
+#
 
-BUILDING ?=			$(ECHO_N)	"\tBuilding      : $@\t"
-COMPILING ?=		$(ECHO_N)	"\tCompiling     : $<\t"
-BUILD_SUCCESS ?=	$(ECHO)		"\tBuild successful"
-RUNNING ?=			$(ECHO)		"\tRunning       : $^"
-VERSION ?=			$(ECHO_N)	"\tVersion       : \t"
-CLEANING ?=			$(ECHO_N)	"\tCleaning project\t"
-PASS ?=				$(ECHO)		"\tOK"
-DOCUMENTATION ?=	$(ECHO_N)	"\tDocumentation : \t"
+COLORS ?= YES
+ifneq ($(COLORS),YES)
+  ifneq ($(COLORS),NO)
+    $(error "COLORS" variable can not be "$(COLORS)")
+  endif
+endif
+
+ifeq ($(COLORS),NO)
+
+  # Messages
+  BUILD_SUCCESS ?=	@$(ECHO) "\tBuild successful"
+  FLASH ?=			@$(ECHO) "\tFlashing MCU"
+  ERASE ?=			@$(ECHO) "\tErasing MCU"
+  CLEANING ?=		@$(ECHO) "\tCleaning project\t"
+
+  COMPILING ?=		@$(ECHO) "\tCompiling $<\t"
+  BUILDING ?=		@$(ECHO) "\tBuilding  $@\t"
+  RUNNING ?=		@$(ECHO) "\tRunning   $^"
+  VERSION ?=		@$(ECHO) "\tVersion"
+  DOCUMENTATION ?=	@$(ECHO) "\tDocumentation"
+
+
+else
+
+  # TPUT COLORS for Help function
+  TPUT_GREEN =		$(shell tput -Txterm setaf 2)
+  TPUT_WHITE =		$(shell tput -Txterm setaf 7)
+  TPUT_YELLOW =		$(shell tput -Txterm setaf 3)
+  TPUT_RESET =		$(shell tput -Txterm sgr0)
+
+
+  RED =				@tput bold && tput -Txterm setaf 1
+  GREEN =			@tput bold && tput -Txterm setaf 2
+  YELLOW =			@tput bold && tput -Txterm setaf 3
+  BLUE =			@tput bold && tput -Txterm setaf 4
+  RESET =			tput -Txterm sgr0
+
+  # Messages
+  BUILD_SUCCESS ?=	$(GREEN)  && $(ECHO)   "\tBuild successful"	&& $(RESET)
+  FLASH ?=			$(YELLOW) && $(ECHO)   "\tFlashing MCU"		&& $(RESET)
+  ERASE ?=			$(RED)    && $(ECHO)   "\tErasing MCU"		&& $(RESET)
+  CLEANING ?=		$(RED)    && $(ECHO)   "\tCleaning project\t"&& $(RESET)
+
+  COMPILING ?=		$(YELLOW) && $(ECHO_N) "\tCompiling"		&& $(RESET) && $(ECHO) " $<\t"
+  BUILDING ?=		$(YELLOW) && $(ECHO_N) "\tBuilding "		&& $(RESET) && $(ECHO) " $@\t"
+  RUNNING ?=		$(YELLOW) && $(ECHO_N) "\tRunning  "		&& $(RESET) && $(ECHO) " $^"
+  VERSION ?=		$(YELLOW) && $(ECHO)   "\tVersion"			&& $(RESET)
+  DOCUMENTATION ?=	$(YELLOW) && $(ECHO)   "\tDocumentation"	&& $(RESET)
+
+endif
+
+#..............................................................................#
+
+# Add the following 'help' target to your Makefile
+# And add help text after each target name starting with '\#\#'
+# A category can be added with @category
+# Credits to: https://gist.github.com/prwhite/8168133
+HELP_FUNC := \
+	%help; \
+	while(<>) { \
+		if(/^([a-z0-9_-]+):.*\#\#(?:@(\w+))?\s(.*)$$/) { \
+			push(@{$$help{$$2}}, [$$1, $$3]); \
+		} \
+	}; \
+	print "Usage: make $(TPUT_YELLOW)[target]$(TPUT_RESET)\n\n"; \
+	for ( sort keys %help ) { \
+		print "$(TPUT_WHITE)$$_:$(TPUT_RESET)\n"; \
+		printf("  $(TPUT_YELLOW)%-20s$(TPUT_RESET) \
+						$(TPUT_GREEN)%s$(TPUT_RESET)\n", $$_->[0], \
+						$$_->[1]) for @{$$help{$$_}}; \
+		print "\n"; \
+	}
 
 ################################################################################
 #	 _____                            _                 _           
@@ -574,6 +646,7 @@ build: ##@build Builds project without documentation.
 build:	version \
 		host\
 		target\
+		tests\
 		runTests
 	$(BUILD_SUCCESS)
 
@@ -581,7 +654,6 @@ build:	version \
 version: ##@options Runs a script to generate inc/version.h
 	$(VERSION)
 	@scripts/get_version.sh 1>/dev/null
-	$(PASS)
 
 .PHONY: clean
 clean:
@@ -590,7 +662,6 @@ clean:
 	$(RM_FR)		$(BIN_DIR)
 	$(RM_FR)		$(DOC_DIR)
 	$(RM_FR)		$(INC_DIR)version.h
-	$(PASS)
 
 .PHONY: help
 help: ##@options Shows a list of all available make options.
@@ -644,7 +715,6 @@ endif
 ifndef CHROMIUM_EXISTS
 	$(warning "Please install 'chromium-browser'!")
 endif
-	$(PASS)
 
 #..............................................................................#
 #	Test driven development
@@ -652,8 +722,7 @@ endif
 .PHONY: runTests
 runTests: ##@tests Run all tests.
 runTests: $(BIN_DIR)$(HOST_DIR)$(EXEC)_runTests
-	$(ECHO)
-	$(ECHO_N)		"\tTests: "
+	@$(ECHO)
 	@./$< -c | $(SED) 's/^/\t/'
 
 #..............................................................................#
@@ -671,7 +740,6 @@ doc:
 	$(DOCUMENTATION)
 	$(MKDIR_P)		$(DOC_DIR)html
 	@(cd conf/doxygen/ && doxygen)
-	$(PASS)
 
 .PHONY: show
 show: ##@doc Shows documentation.
@@ -692,7 +760,7 @@ lint: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
 ifndef WINE_EXISTS
 	$(error "Please install 'wine and pc-lint'!")
 endif
-	$(ECHO)
+	@$(ECHO)
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
@@ -706,8 +774,7 @@ endif
 									temp.lnt \
 									$(INCLUDES) \
 									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	$(ECHO)
-	$(PASS)
+	@$(ECHO)
 
 .PHONY: barr10
 barr10: ##@analysis Lint static analysis for barr10 coding standard (pc-lint).
@@ -716,7 +783,7 @@ barr10: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
 ifndef WINE_EXISTS
 	$(error "Please install 'wine and pc-lint'!")
 endif
-	$(ECHO)
+	@$(ECHO)
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
@@ -725,8 +792,7 @@ endif
 									temp.lnt \
 									$(INCLUDES) \
 									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	$(ECHO)
-	$(PASS)
+	@$(ECHO)
 
 .PHONY: netrino
 netrino: ##@analysis Lint static analysis for netrino coding standard (pc-lint).
@@ -735,7 +801,7 @@ netrino: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
 ifndef WINE_EXISTS
 	$(error "Please install 'wine and pc-lint'!")
 endif
-	$(ECHO)
+	@$(ECHO)
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
@@ -744,8 +810,7 @@ endif
 									temp.lnt \
 									$(INCLUDES) \
 									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	$(ECHO)
-	$(PASS)
+	@$(ECHO)
 
 .PHONY: misrac98
 misrac98: ##@analysis Lint static analysis for MISRA-C 1998 (pc-lint).
@@ -754,7 +819,7 @@ misrac98: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
 ifndef WINE_EXISTS
 	$(error "Please install 'wine and pc-lint'!")
 endif
-	$(ECHO)
+	@$(ECHO)
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
@@ -763,8 +828,7 @@ endif
 									temp.lnt \
 									$(INCLUDES) \
 									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	$(ECHO)
-	$(PASS)
+	@$(ECHO)
 
 .PHONY: misrac04
 misrac04: ##@analysis Lint static analysis for MISRA-C 2004 (pc-lint).
@@ -773,7 +837,7 @@ misrac04: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
 ifndef WINE_EXISTS
 	$(error "Please install 'wine and pc-lint'!")
 endif
-	$(ECHO)
+	@$(ECHO)
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
@@ -782,8 +846,7 @@ endif
 									temp.lnt \
 									$(INCLUDES) \
 									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	$(ECHO)
-	$(PASS)
+	@$(ECHO)
 
 .PHONY: misrac12
 misrac12: ##@analysis Lint static analysis for MISRA-C 2012 (pc-lint).
@@ -792,7 +855,7 @@ misrac12: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
 ifndef WINE_EXISTS
 	$(error "Please install 'wine and pc-lint'!")
 endif
-	$(ECHO)
+	@$(ECHO)
 	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
 									-iconf/pc-lint/ \
 									-iconf/pc-lint/gcc_x86_64 \
@@ -801,8 +864,7 @@ endif
 									temp.lnt \
 									$(INCLUDES) \
 									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	$(ECHO)
-	$(PASS)
+	@$(ECHO)
 
 $(TMP_DIR)lint_cmac.h:
 	$(BUILDING)
@@ -811,7 +873,6 @@ $(TMP_DIR)lint_cmac.h:
 	$(TOUCH)		$(TMP_DIR)empty.c
 	@$(CC_HOST)		-E -dM $(TMP_DIR)empty.c >$@
 	$(RM_FR)		$(TMP_DIR)empty.c
-	$(PASS)
 
 $(TMP_DIR)lint_cppmac.h:
 	$(BUILDING)
@@ -820,19 +881,16 @@ $(TMP_DIR)lint_cppmac.h:
 	$(TOUCH)		$(TMP_DIR)empty.cpp
 	@$(CXX_HOST)	-E -dM $(TMP_DIR)empty.cpp >$@
 	$(RM_FR)		$(TMP_DIR)empty.cpp
-	$(PASS)
 
 $(TMP_DIR)gcc-include-path.lnt:
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@./scripts/pclint_settings
-	$(PASS)
 
 $(TMP_DIR)temp.lnt:
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	$(TOUCH)		$@
-	$(PASS)
 
 .PHONY: valgrind
 valgrind: ##@analysis Valgrind dynamic analysis.
@@ -855,6 +913,7 @@ todo: ##@analysis Check for programmer notes in code.
 run: ##@live Runs the host program.
 run: build
 	$(RUNNING)
+	@$(ECHO)
 	@./$(BIN_DIR)$(HOST_DIR)$(EXEC)
 
 .PHONY: serial
@@ -875,18 +934,18 @@ flash: build
 ifndef JLINK_EXISTS
 	$(error "Please install Segger J-Link drivers!")
 endif
-	$(ECHO)			"Flashing MCU"
-	@JLinkExe		-commanderscript conf/jlink/download_$(CONF).jlink
-	$(PASS)
+	@$(ECHO)
+	$(FLASH)
+	@JLinkExe		-commanderscript conf/jlink/download_$(CONF).jlink | $(SED) 's/^/\t/'
 
 .PHONY: erase
 erase: ##@live Erases the mcu.
 ifndef JLINK_EXISTS
 	$(error "Please install Segger J-Link drivers!")
 endif
-	$(ECHO)			"Erasing MCU"
-	@JLinkExe		-commanderscript conf/jlink/erase.jlink
-	$(PASS)
+	@$(ECHO)
+	$(ERASE)
+	@JLinkExe		-commanderscript conf/jlink/erase.jlink | $(SED) 's/^/\t/'
 
 .PHONY: debug_host
 debug_host: ##@live Debug the host program.
@@ -902,51 +961,36 @@ debug_target: ##@live Debug the target program.
 debug_target: build
 	$(error "Not implemented for target!")
 
-#..............................................................................#
 
 
 
-
-.PHONY: config
-config:
-	$(ECHO)			"Target =         $(CC_TARGET)"
-	$(ECHO)			"MAKEFLAGS =      $(MAKEFLAGS)"
-	$(ECHO)			"TARGET_NAME =    $(TARGET_NAME)"
-	$(ECHO)			"CONF =           $(CONF)"
-	$(ECHO)			"HOST_C_SRCs =    $(HOST_C_SRCs)"
-	$(ECHO)			"HOST_OBJECTS =   $(HOST_OBJECTS)"
-	$(ECHO)			"TARGET_OBJECTS = $(TARGET_OBJECTS)"
-	$(ECHO)			"OBJECT_MAIN =    $(OBJECT_MAIN)"
-	$(ECHO)			"TEST_OBJECTS =   $(TEST_OBJECTS)"
 
 .PHONY: show_flags
 show_flags:
-	$(ECHO)			"Host"
-	$(ECHO)			"PP :  $(HOST_CPPFLAGS)"
-	$(ECHO)			"INC:  $(HOST_INCLUDES)"
-	$(ECHO)			"DEP:  $(HOST_DEPFLAGS)"
-	$(ECHO)			"C++:  $(HOST_CXXFLAGS)"
-	$(ECHO)			"C  :  $(HOST_CFLAGS)"
-	$(ECHO)			"ASM:  $(HOST_ASFLAGS)"
-	$(ECHO)			"OBJ:  $(HOST_OBJ_MAIN) $(HOST_OBJS)"
-	$(ECHO)			"Target"
-	$(ECHO)			"PP :  $(TARGET_CPPFLAGS)"
-	$(ECHO)			"INC:  $(TARGET_INCLUDES)"
-	$(ECHO)			"DEP:  $(TARGET_DEPFLAGS)"
-	$(ECHO)			"C++:  $(TARGET_CXXFLAGS)"
-	$(ECHO)			"C  :  $(TARGET_CFLAGS)"
-	$(ECHO)			"ASM:  $(TARGET_ASFLAGS)"
-	$(ECHO)			"OBJ:  $(TARGET_OBJ_MAIN) $(TARGET_OBJS)"
-	$(ECHO)			"Test"
-	$(ECHO)			"PP :  $(TEST_CPPFLAGS)"
-	$(ECHO)			"INC:  $(TEST_INCLUDES)"
-	$(ECHO)			"DEP:  $(TEST_DEPFLAGS)"
-	$(ECHO)			"C++:  $(TEST_CXXFLAGS)"
-	$(ECHO)			"C  :  $(TEST_CFLAGS)"
-	$(ECHO)			"ASM:  $(TEST_ASFLAGS)"
-	$(ECHO)			"OBJ:  $(TEST_OBJS)"
-
-
+	@$(ECHO)			"Host"
+	@$(ECHO)			"PP :  $(HOST_CPPFLAGS)"
+	@$(ECHO)			"INC:  $(HOST_INCLUDES)"
+	@$(ECHO)			"DEP:  $(HOST_DEPFLAGS)"
+	@$(ECHO)			"C++:  $(HOST_CXXFLAGS)"
+	@$(ECHO)			"C  :  $(HOST_CFLAGS)"
+	@$(ECHO)			"ASM:  $(HOST_ASFLAGS)"
+	@$(ECHO)			"OBJ:  $(HOST_OBJ_MAIN) $(HOST_OBJS)"
+	@$(ECHO)			"Target"
+	@$(ECHO)			"PP :  $(TARGET_CPPFLAGS)"
+	@$(ECHO)			"INC:  $(TARGET_INCLUDES)"
+	@$(ECHO)			"DEP:  $(TARGET_DEPFLAGS)"
+	@$(ECHO)			"C++:  $(TARGET_CXXFLAGS)"
+	@$(ECHO)			"C  :  $(TARGET_CFLAGS)"
+	@$(ECHO)			"ASM:  $(TARGET_ASFLAGS)"
+	@$(ECHO)			"OBJ:  $(TARGET_OBJ_MAIN) $(TARGET_OBJS)"
+	@$(ECHO)			"Test"
+	@$(ECHO)			"PP :  $(TEST_CPPFLAGS)"
+	@$(ECHO)			"INC:  $(TEST_INCLUDES)"
+	@$(ECHO)			"DEP:  $(TEST_DEPFLAGS)"
+	@$(ECHO)			"C++:  $(TEST_CXXFLAGS)"
+	@$(ECHO)			"C  :  $(TEST_CFLAGS)"
+	@$(ECHO)			"ASM:  $(TEST_ASFLAGS)"
+	@$(ECHO)			"OBJ:  $(TEST_OBJS)"
 
 ################################################################################
 #	 _   _           _   
@@ -958,7 +1002,8 @@ show_flags:
 
 .PHONY: host
 host: ##@build Builds the host.
-host:	$(BIN_DIR)$(HOST_DIR)$(EXEC) \
+host:	version\
+		$(BIN_DIR)$(HOST_DIR)$(EXEC) \
 		$(BIN_DIR)$(HOST_DIR)$(EXEC).hex \
 		$(BIN_DIR)$(HOST_DIR)$(EXEC).bin \
 		$(BIN_DIR)$(HOST_DIR)lib$(EXEC).a \
@@ -969,36 +1014,32 @@ $(BIN_DIR)$(HOST_DIR)$(EXEC): $(HOST_OBJ_MAIN) $(HOST_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(CC_HOST)		$^ $(HOST_LDFLAGS) -Wl,-Map=$@.map,--cref -o $@
-	$(PASS)
 
 # Create host hex program
 $(BIN_DIR)$(HOST_DIR)%.hex: $(BIN_DIR)$(HOST_DIR)$(EXEC)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(HEX_HOST)	$< $@
-	$(PASS)
 
 # Create host bin program
 $(BIN_DIR)$(HOST_DIR)%.bin: $(BIN_DIR)$(HOST_DIR)$(EXEC)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(BIN_HOST)	$< $@
-	$(PASS)
 
 # Create host lib
 $(BIN_DIR)$(HOST_DIR)lib$(EXEC).a: $(HOST_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(AR_HOST)		rcs $@ $<
-	$(PASS)
 
 # Size the generated program
 $(BIN_DIR)$(HOST_DIR)$(EXEC).size: $(BIN_DIR)$(HOST_DIR)$(EXEC).hex
-	$(ECHO)
+	@$(ECHO)
 	@$(SZ_HOST)		$^ | sed 's/^/\t/'
 	$(MKDIR_P)		$(dir $@)
 	@$(SZ_HOST)		$^ --format=sysv 1>$@
-	$(ECHO)
+	@$(ECHO)
 
 # Create host object from C++ source code
 $(OBJ_DIR)$(HOST_DIR)%.o: %.cpp $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
@@ -1006,7 +1047,6 @@ $(OBJ_DIR)$(HOST_DIR)%.o: %.cpp $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(CXX_HOST)	$< -c $(HOST_CXXFLAGS) $(HOST_CPPFLAGS) $(HOST_INCLUDES) $(HOST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(HOST_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(HOST_DIR)$*.Td $(OBJ_DIR)$(HOST_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Create object from C source code
 $(OBJ_DIR)$(HOST_DIR)%.o: %.c $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
@@ -1014,7 +1054,6 @@ $(OBJ_DIR)$(HOST_DIR)%.o: %.c $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(CC_HOST)		$< -c $(HOST_CFLAGS) $(HOST_CPPFLAGS) $(HOST_INCLUDES) $(HOST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(HOST_DIR)$<)$(notdir $(<:.c=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(HOST_DIR)$*.Td $(OBJ_DIR)$(HOST_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Create object from Assembly source code
 $(OBJ_DIR)$(HOST_DIR)%.o: %.s $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
@@ -1022,7 +1061,6 @@ $(OBJ_DIR)$(HOST_DIR)%.o: %.s $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(AS_HOST)		$< -c $(HOST_ASFLAGS) $(HOST_CPPFLAGS) $(HOST_INCLUDES) $(HOST_DEPFLAGS) -o $@
 	$(MV_F)			$(OBJ_DIR)$(HOST_DIR)$*.Td $(OBJ_DIR)$(HOST_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Manage auto-depedencies
 .PRECIOUS: $(OBJ_DIR)$(HOST_DIR)%.d
@@ -1039,7 +1077,8 @@ $(OBJ_DIR)$(HOST_DIR)%.d: ;
 
 .PHONY: target
 target: ##@build Builds the target.
-target:		$(BIN_DIR)$(TARGET_DIR)$(EXEC).elf \
+target:		version\
+			$(BIN_DIR)$(TARGET_DIR)$(EXEC).elf \
 			$(BIN_DIR)$(TARGET_DIR)$(EXEC).hex \
 			$(BIN_DIR)$(TARGET_DIR)$(EXEC).bin \
 			$(BIN_DIR)$(TARGET_DIR)lib$(EXEC).a \
@@ -1050,36 +1089,32 @@ $(BIN_DIR)$(TARGET_DIR)$(EXEC).elf: $(TARGET_OBJ_MAIN) $(TARGET_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(CC_TARGET)	$^ $(ARCHFLAGS) $(TARGET_LDFLAGS) -Wl,-Map=$(BIN_DIR)$(TARGET_DIR)$(EXEC).map,--cref -o $@
-	$(PASS)
 
 # Create target hex program
 $(BIN_DIR)$(TARGET_DIR)%.hex: $(BIN_DIR)$(TARGET_DIR)%.elf
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(HEX_TARGET)	$< $@
-	$(PASS)
 
 # Create target bin program
 $(BIN_DIR)$(TARGET_DIR)%.bin: $(BIN_DIR)$(TARGET_DIR)%.elf
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(BIN_TARGET)	$< $@
-	$(PASS)
 
 # Create target lib
 $(BIN_DIR)$(TARGET_DIR)lib$(EXEC).a: $(TARGET_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(AR_TARGET)	rcs $@ $<
-	$(PASS)
 
 # Size the generated program
 $(BIN_DIR)$(TARGET_DIR)$(EXEC).size: $(BIN_DIR)$(TARGET_DIR)$(EXEC).hex
-	$(ECHO)
+	@$(ECHO)
 	@$(SZ_TARGET)	$^ | sed 's/^/\t/'
 	$(MKDIR_P)		$(dir $@)
 	@$(SZ_TARGET)	$^ --format=sysv 1>$@
-	$(ECHO)
+	@$(ECHO)
 
 # Create target object from C++ source code
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.cpp $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
@@ -1087,7 +1122,6 @@ $(OBJ_DIR)$(TARGET_DIR)%.o: %.cpp $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(CXX_TARGET)	$< -c $(TARGET_CXXFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Create target object from C source code
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.c $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
@@ -1095,7 +1129,6 @@ $(OBJ_DIR)$(TARGET_DIR)%.o: %.c $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(CC_TARGET)	$< -c $(TARGET_CFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.c=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Create target object from Assembly source code
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.s $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
@@ -1103,7 +1136,6 @@ $(OBJ_DIR)$(TARGET_DIR)%.o: %.s $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(AS_TARGET)	$< -c $(TARGET_ASFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Manage auto-depedencies
 .PRECIOUS: $(OBJ_DIR)$(TARGET_DIR)%.d
@@ -1116,14 +1148,18 @@ $(OBJ_DIR)$(TARGET_DIR)%.d: ;
 #	  | |  __/\__ \ |_\__ \
 #	  |_|\___||___/\__|___/
 #	                       
-#	
+#
+
+.PHONY: tests
+tests: ##@build Builds the tests.
+tests:		version\
+			$(BIN_DIR)$(HOST_DIR)$(EXEC)_runTests
 
 # Build test program
 $(BIN_DIR)$(HOST_DIR)$(EXEC)_runTests: $(TEST_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
 	@$(CXX_HOST)	$^ $(TEST_LDFLAGS) -o $@
-	$(PASS)
 
 # Create test object from C++ source code
 $(OBJ_DIR)$(TESTS_DIR)%.o: %.cpp $(OBJ_DIR)$(TESTS_DIR)%.d $(AUX)
@@ -1131,7 +1167,6 @@ $(OBJ_DIR)$(TESTS_DIR)%.o: %.cpp $(OBJ_DIR)$(TESTS_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(CXX_HOST)	$< -c $(TEST_CXXFLAGS) $(TEST_CPPFLAGS) $(TEST_INCLUDES) $(TEST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TESTS_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TESTS_DIR)$*.Td $(OBJ_DIR)$(TESTS_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Create test object from C source code
 $(OBJ_DIR)$(TESTS_DIR)%.o: %.c $(OBJ_DIR)$(TESTS_DIR)%.d $(AUX)
@@ -1139,7 +1174,6 @@ $(OBJ_DIR)$(TESTS_DIR)%.o: %.c $(OBJ_DIR)$(TESTS_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(CC_HOST)		$< -c $(TEST_CFLAGS) $(TEST_CPPFLAGS) $(TEST_INCLUDES) $(TEST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TESTS_DIR)$<)$(notdir $(<:.c=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TESTS_DIR)$*.Td $(OBJ_DIR)$(TESTS_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Create test object from Assembly source code
 $(OBJ_DIR)$(TESTS_DIR)%.o: %.s $(OBJ_DIR)$(TESTS_DIR)%.d $(AUX)
@@ -1147,7 +1181,6 @@ $(OBJ_DIR)$(TESTS_DIR)%.o: %.s $(OBJ_DIR)$(TESTS_DIR)%.d $(AUX)
 	$(MKDIR_P)		$(dir $@)
 	@$(AS_HOST)		$< -c $(TEST_ASFLAGS) $(TEST_CPPFLAGS) $(TEST_INCLUDES) $(TEST_DEPFLAGS) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TESTS_DIR)$*.Td $(OBJ_DIR)$(TESTS_DIR)$*.d && $(TOUCH) $@
-	$(PASS)
 
 # Manage auto-depedencies
 .PRECIOUS: $(OBJ_DIR)$(TESTS_DIR)%.d
