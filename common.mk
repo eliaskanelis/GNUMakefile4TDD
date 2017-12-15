@@ -185,37 +185,37 @@ AUX = 				Makefile common.mk
 #..............................................................................#
 
 # C++ source files
-CXX_SRCs :=			$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
-CXX_SRCs +=			$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.cpp")
-CXX_SRCs +=			$(USER_HOST_CXX_SRCs)
-CXX_SRCs +=			$(USER_CXX_SRCs)
+HOST_CXX_SRCs :=	$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
+HOST_CXX_SRCs +=	$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.cpp")
+HOST_CXX_SRCs +=	$(USER_HOST_CXX_SRCs)
+HOST_CXX_SRCs +=	$(USER_CXX_SRCs)
 
 # C source files
-C_SRCs :=			$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
-C_SRCs +=			$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.c")
-C_SRCs +=			$(USER_HOST_C_SRCs)
-C_SRCs +=			$(USER_C_SRCs)
+HOST_C_SRCs :=		$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
+HOST_C_SRCs +=		$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.c")
+HOST_C_SRCs +=		$(USER_HOST_C_SRCs)
+HOST_C_SRCs +=		$(USER_C_SRCs)
 
 # Assembly source files
-AS_SRCs :=			$(shell find $(SRC_DIR) ! -name "*main.s" -name "*.s")
-AS_SRCs +=			$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.s")
-AS_SRCs +=			$(USER_HOST_AS_SRCs)
-AS_SRCs +=			$(USER_AS_SRCs)
+HOST_AS_SRCs :=		$(shell find $(SRC_DIR) ! -name "*main.s" -name "*.s")
+HOST_AS_SRCs +=		$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.s")
+HOST_AS_SRCs +=		$(USER_HOST_AS_SRCs)
+HOST_AS_SRCs +=		$(USER_AS_SRCs)
 
 # Main sources
-CXX_MAIN :=			$(shell find $(SRC_DIR) -name "*main.cpp")
-C_MAIN :=			$(shell find $(SRC_DIR) -name "*main.c")
-AS_MAIN :=			$(shell find $(SRC_DIR) -name "*main.s")
+HOST_CXX_MAIN :=	$(shell find $(SRC_DIR) -name "*main.cpp")
+HOST_C_MAIN :=		$(shell find $(SRC_DIR) -name "*main.c")
+HOST_AS_MAIN :=		$(shell find $(SRC_DIR) -name "*main.s")
 
 # Object files for main
-HOST_OBJ_MAIN =		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(CXX_MAIN:%.cpp=%.o))
-HOST_OBJ_MAIN +=	$(addprefix $(OBJ_DIR)$(HOST_DIR),$(C_MAIN:%.c=%.o))
-HOST_OBJ_MAIN +=	$(addprefix $(OBJ_DIR)$(HOST_DIR),$(AS_MAIN:%.s=%.o))
+HOST_OBJ_MAIN =		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_CXX_MAIN:%.cpp=%.o))
+HOST_OBJ_MAIN +=	$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_C_MAIN:%.c=%.o))
+HOST_OBJ_MAIN +=	$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_AS_MAIN:%.s=%.o))
 
 # Object files
-HOST_OBJS =			$(addprefix $(OBJ_DIR)$(HOST_DIR),$(CXX_SRCs:%.cpp=%.o))
-HOST_OBJS +=		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(C_SRCs:%.c=%.o))
-HOST_OBJS +=		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(AS_SRCs:%.s=%.o))
+HOST_OBJS =			$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_CXX_SRCs:%.cpp=%.o))
+HOST_OBJS +=		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_C_SRCs:%.c=%.o))
+HOST_OBJS +=		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_AS_SRCs:%.s=%.o))
 
 #..............................................................................#
 
@@ -257,17 +257,17 @@ TARGET_OBJS +=		$(addprefix $(OBJ_DIR)$(TARGET_DIR),$(TARGET_AS_SRCs:%.s=%.o))
 # C++ test source files
 TEST_CXX_SRCs :=	$(shell find $(TESTS_DIR) -name "*.cpp")
 TEST_CXX_SRCs +=	$(USER_TEST_CXX_SRCs)
-TEST_CXX_SRCs +=	$(CXX_SRCs)
+TEST_CXX_SRCs +=	$(HOST_CXX_SRCs)
 
 # C source files
 TEST_C_SRCs :=		$(shell find $(TESTS_DIR) -name "*.c")
 TEST_C_SRCs +=		$(USER_TEST_C_SRCs)
-TEST_C_SRCs +=		$(C_SRCs)
+TEST_C_SRCs +=		$(HOST_C_SRCs)
 
 # Assembly source files
 TEST_AS_SRCs :=		$(shell find $(TESTS_DIR) -name "*.s")
 TEST_AS_SRCs +=		$(USER_TEST_AS_SRCs)
-TEST_AS_SRCs +=		$(AS_SRCs)
+TEST_AS_SRCs +=		$(HOST_AS_SRCs)
 
 # Test object files
 TEST_OBJS =			$(addprefix $(OBJ_DIR)$(TESTS_DIR),$(TEST_CXX_SRCs:%.cpp=%.o))
@@ -703,7 +703,7 @@ endif
 									options.lnt \
 									temp.lnt \
 									$(INCLUDES) \
-									$(C_SRCs) | tr '\\\r' '/ '
+									$(HOST_C_SRCs) | tr '\\\r' '/ '
 	$(ECHO)
 	$(PASS)
 
@@ -722,7 +722,7 @@ endif
 									options.lnt \
 									temp.lnt \
 									$(INCLUDES) \
-									$(C_SRCs) | tr '\\\r' '/ '
+									$(HOST_C_SRCs) | tr '\\\r' '/ '
 	$(ECHO)
 	$(PASS)
 
@@ -741,7 +741,7 @@ endif
 									options.lnt \
 									temp.lnt \
 									$(INCLUDES) \
-									$(C_SRCs) | tr '\\\r' '/ '
+									$(HOST_C_SRCs) | tr '\\\r' '/ '
 	$(ECHO)
 	$(PASS)
 
@@ -760,7 +760,7 @@ endif
 									options.lnt \
 									temp.lnt \
 									$(INCLUDES) \
-									$(C_SRCs) | tr '\\\r' '/ '
+									$(HOST_C_SRCs) | tr '\\\r' '/ '
 	$(ECHO)
 	$(PASS)
 
@@ -779,7 +779,7 @@ endif
 									options.lnt \
 									temp.lnt \
 									$(INCLUDES) \
-									$(C_SRCs) | tr '\\\r' '/ '
+									$(HOST_C_SRCs) | tr '\\\r' '/ '
 	$(ECHO)
 	$(PASS)
 
@@ -798,7 +798,7 @@ endif
 									options.lnt \
 									temp.lnt \
 									$(INCLUDES) \
-									$(C_SRCs) | tr '\\\r' '/ '
+									$(HOST_C_SRCs) | tr '\\\r' '/ '
 	$(ECHO)
 	$(PASS)
 
@@ -911,7 +911,7 @@ config:
 	$(ECHO)			"MAKEFLAGS =      $(MAKEFLAGS)"
 	$(ECHO)			"TARGET_NAME =    $(TARGET_NAME)"
 	$(ECHO)			"CONF =           $(CONF)"
-	$(ECHO)			"C_SRCs =         $(C_SRCs)"
+	$(ECHO)			"HOST_C_SRCs =    $(HOST_C_SRCs)"
 	$(ECHO)			"HOST_OBJECTS =   $(HOST_OBJECTS)"
 	$(ECHO)			"TARGET_OBJECTS = $(TARGET_OBJECTS)"
 	$(ECHO)			"OBJECT_MAIN =    $(OBJECT_MAIN)"
@@ -1156,23 +1156,23 @@ $(OBJ_DIR)$(TESTS_DIR)%.d: ;
 
 #..............................................................................#
 # For host
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(CΧΧ_SRCs))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(C_SRCs))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(AS_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(HOST_CΧΧ_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(HOST_C_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(HOST_AS_SRCs))))
 # For host main
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(CXX_MAIN))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(C_MAIN))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(AS_MAIN))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(HOST_CXX_MAIN))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(HOST_C_MAIN))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(HOST_DIR)%.d,$(basename $(HOST_AS_MAIN))))
 
 #..............................................................................#
 # For target
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(CΧΧ_SRCs))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(C_SRCs))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(AS_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(TARGET_CΧΧ_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(TARGET_C_SRCs))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(TARGET_AS_SRCs))))
 # For target main
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(CXX_MAIN))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(C_MAIN))))
--include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(AS_MAIN))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(TARGET_CXX_MAIN))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(TARGET_C_MAIN))))
+-include $(wildcard $(patsubst %,$(OBJ_DIR)$(TARGET_DIR)%.d,$(basename $(TARGET_AS_MAIN))))
 
 #..............................................................................#
 # For tests
