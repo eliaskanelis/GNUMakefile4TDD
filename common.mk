@@ -1,10 +1,12 @@
 ################################################################################
-#	 _____           _              _     _          _   _____ ____  ____  
-#	| ____|_ __ ___ | |__   ___  __| | __| | ___  __| | |_   _|  _ \|  _ \ 
-#	|  _| | '_ ` _ \| '_ \ / _ \/ _` |/ _` |/ _ \/ _` |   | | | | | | | | |
-#	| |___| | | | | | |_) |  __/ (_| | (_| |  __/ (_| |   | | | |_| | |_| |
-#	|_____|_| |_| |_|_.__/ \___|\__,_|\__,_|\___|\__,_|   |_| |____/|____/ 
 #
+#	GNU Make makefile for cross-compile and Test driven development in C for
+#	dual-targeted environments
+#
+#	Version:    Beta_3
+#   Date:       2017/12/9
+#	Maintainer: Ilias Kanelis (hkanelhs@yahoo.gr)
+#   License:    MIT
 #
 
 ################################################################################
@@ -185,27 +187,27 @@ AUX = 				Makefile common.mk
 #..............................................................................#
 
 # C++ source files
-HOST_CXX_SRCs :=	$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
+HOST_CXX_SRCs =		$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
 HOST_CXX_SRCs +=	$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.cpp")
 HOST_CXX_SRCs +=	$(USER_HOST_CXX_SRCs)
 HOST_CXX_SRCs +=	$(USER_CXX_SRCs)
 
 # C source files
-HOST_C_SRCs :=		$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
+HOST_C_SRCs =		$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
 HOST_C_SRCs +=		$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.c")
 HOST_C_SRCs +=		$(USER_HOST_C_SRCs)
 HOST_C_SRCs +=		$(USER_C_SRCs)
 
 # Assembly source files
-HOST_AS_SRCs :=		$(shell find $(SRC_DIR) ! -name "*main.s" -name "*.s")
+HOST_AS_SRCs =		$(shell find $(SRC_DIR) ! -name "*main.s" -name "*.s")
 HOST_AS_SRCs +=		$(shell find $(PORT_DIR)$(MACHINE)/ -name "*.s")
 HOST_AS_SRCs +=		$(USER_HOST_AS_SRCs)
 HOST_AS_SRCs +=		$(USER_AS_SRCs)
 
 # Main sources
-HOST_CXX_MAIN :=	$(shell find $(SRC_DIR) -name "*main.cpp")
-HOST_C_MAIN :=		$(shell find $(SRC_DIR) -name "*main.c")
-HOST_AS_MAIN :=		$(shell find $(SRC_DIR) -name "*main.s")
+HOST_CXX_MAIN =		$(shell find $(SRC_DIR) -name "*main.cpp")
+HOST_C_MAIN =		$(shell find $(SRC_DIR) -name "*main.c")
+HOST_AS_MAIN =		$(shell find $(SRC_DIR) -name "*main.s")
 
 # Object files for main
 HOST_OBJ_MAIN =		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_CXX_MAIN:%.cpp=%.o))
@@ -220,27 +222,27 @@ HOST_OBJS +=		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_AS_SRCs:%.s=%.o))
 #..............................................................................#
 
 # C++ source files
-TARGET_CXX_SRCs :=	$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
+TARGET_CXX_SRCs =	$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
 TARGET_CXX_SRCs +=	$(shell find $(PORT_DIR)$(TARGET_NAME)/ -name "*.cpp")
 TARGET_CXX_SRCs +=	$(USER_TARGET_CXX_SRCs)
 TARGET_CXX_SRCs +=	$(USER_CXX_SRCs)
 
 # C source files
-TARGET_C_SRCs :=	$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
+TARGET_C_SRCs =		$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
 TARGET_C_SRCs +=	$(shell find $(PORT_DIR)$(TARGET_NAME)/ -name "*.c")
 TARGET_C_SRCs +=	$(USER_TARGET_C_SRCs)
 TARGET_C_SRCs +=	$(USER_C_SRCs)
 
 # Assembly source files
-TARGET_AS_SRCs :=	$(shell find $(SRC_DIR) ! -name "*main.s" -name "*.s")
+TARGET_AS_SRCs =	$(shell find $(SRC_DIR) ! -name "*main.s" -name "*.s")
 TARGET_AS_SRCs +=	$(shell find $(PORT_DIR)$(TARGET_NAME)/ -name "*.s")
 TARGET_AS_SRCs +=	$(USER_TARGET_AS_SRCs)
 TARGET_AS_SRCs +=	$(USER_AS_SRCs)
 
 # Main sources
-TARGET_CXX_MAIN :=	$(shell find $(SRC_DIR) -name "*main.cpp")
-TARGET_C_MAIN :=	$(shell find $(SRC_DIR) -name "*main.c")
-TARGET_AS_MAIN :=	$(shell find $(SRC_DIR) -name "*main.s")
+TARGET_CXX_MAIN =	$(shell find $(SRC_DIR) -name "*main.cpp")
+TARGET_C_MAIN =		$(shell find $(SRC_DIR) -name "*main.c")
+TARGET_AS_MAIN =	$(shell find $(SRC_DIR) -name "*main.s")
 
 # Object files for main
 TARGET_OBJ_MAIN =	$(addprefix $(OBJ_DIR)$(TARGET_DIR),$(TARGET_CXX_MAIN:%.cpp=%.o))
@@ -255,17 +257,17 @@ TARGET_OBJS +=		$(addprefix $(OBJ_DIR)$(TARGET_DIR),$(TARGET_AS_SRCs:%.s=%.o))
 #..............................................................................#
 
 # C++ test source files
-TEST_CXX_SRCs :=	$(shell find $(TESTS_DIR) -name "*.cpp")
+TEST_CXX_SRCs =		$(shell find $(TESTS_DIR) -name "*.cpp")
 TEST_CXX_SRCs +=	$(USER_TEST_CXX_SRCs)
 TEST_CXX_SRCs +=	$(HOST_CXX_SRCs)
 
 # C source files
-TEST_C_SRCs :=		$(shell find $(TESTS_DIR) -name "*.c")
+TEST_C_SRCs =		$(shell find $(TESTS_DIR) -name "*.c")
 TEST_C_SRCs +=		$(USER_TEST_C_SRCs)
 TEST_C_SRCs +=		$(HOST_C_SRCs)
 
 # Assembly source files
-TEST_AS_SRCs :=		$(shell find $(TESTS_DIR) -name "*.s")
+TEST_AS_SRCs =		$(shell find $(TESTS_DIR) -name "*.s")
 TEST_AS_SRCs +=		$(USER_TEST_AS_SRCs)
 TEST_AS_SRCs +=		$(HOST_AS_SRCs)
 
