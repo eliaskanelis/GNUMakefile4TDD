@@ -1,0 +1,8 @@
+si 1
+device STM32F072RB
+speed 4000
+erase
+loadbin bin/stm32f072rb_dbg/TDD_Project.bin, 0x00
+r
+g
+exit
