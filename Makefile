@@ -156,7 +156,7 @@ endif
 # Build mode options
 BUILD_MODE ?=		debug
 ifneq ($(BUILD_MODE),debug)
-  ifneq ($(PLATFORM),release)
+  ifneq ($(BUILD_MODE),release)
     $(error "BUILD_MODE" variable can not be "$(BUILD_MODE)")
   endif
 endif
@@ -176,12 +176,12 @@ endif
 
 #For target
 ifeq ($(PLATFORM),target)
-  TARGET_NAME =		$(TARGET_CPU)
+  TARGET_NAME =		stm32f072rb
 endif
 
 # For host
 ifeq ($(PLATFORM),host)
-    TARGET_NAME = 	$(shell uname --machine)
+    TARGET_NAME = 	posix
 endif
 
 #...............................................#
@@ -418,13 +418,13 @@ OBJECTS +=			$(addprefix $(OBJ_DIR)$(TARGET_DIR),$(AS_SRCs:%.s=%.o))
 # Tests C++ source files
 TEST_CXX_SRCs :=	$(shell find $(SRC_DIR) ! -name "*main.cpp" -name "*.cpp")
 TEST_CXX_SRCs +=	$(shell find $(TESTS_DIR) -name "*.cpp")
-TEST_CXX_SRCs +=	$(shell find $(PORT_DIR)x86_64/ -name "*.cpp")
+TEST_CXX_SRCs +=	$(shell find $(PORT_DIR)posix/ -name "*.cpp")
 TEST_CXX_SRCs +=	$(USER_TEST_CXX_SRCs)
 
 # Tests C source files
 TEST_C_SRCs :=		$(shell find $(SRC_DIR) ! -name "*main.c" -name "*.c")
 TEST_C_SRCs +=		$(shell find $(TESTS_DIR) -name "*.c")
-TEST_C_SRCs +=		$(shell find $(PORT_DIR)x86_64/ -name "*.c")
+TEST_C_SRCs +=		$(shell find $(PORT_DIR)posix/ -name "*.c")
 TEST_C_SRCs +=		$(USER_TEST_C_SRCs)
 
 # Tests Object files
