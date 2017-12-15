@@ -19,7 +19,7 @@
 /**
  * \brief Get the boards name.
  *
- * \return					The board's name.
+ * \return		The board's name.
  */
 const char* getBoardName( void )
 {

@@ -5,9 +5,19 @@
 #	| |___| | | | | | |_) |  __/ (_| | (_| |  __/ (_| |   | | | |_| | |_| |
 #	|_____|_| |_| |_|_.__/ \___|\__,_|\__,_|\___|\__,_|   |_| |____/|____/ 
 #
-#-------------------------------------------------------------------------------
+#
 
 #TODO:read me SED
+
+################################################################################
+#	  _______          _             _     _       
+#	 |__   __|        | |           (_)   | |      
+#	    | | ___   ___ | |   _____  ___ ___| |_ ___ 
+#	    | |/ _ \ / _ \| |  / _ \ \/ / / __| __/ __|
+#	    | | (_) | (_) | | |  __/>  <| \__ \ |_\__ \
+#	    |_|\___/ \___/|_|  \___/_/\_\_|___/\__|___/
+#
+#
 
 GCC_EXISTS :=		$(shell command -v gcc 2> /dev/null)
 GPP_EXISTS :=		$(shell command -v g++ 2> /dev/null)
@@ -40,7 +50,7 @@ endif
 #	               |__/               
 #
 
-# Build output name
+# Name of the build output
 ifeq ($(EXEC),)
   $(error "EXEC" is not specified)
 endif
@@ -412,7 +422,6 @@ ifeq ($(CPU),)
 endif
 
 FPU ?=	
-
 FLOAT_ABI ?=
 
 TARGET_CPPFLAGS +=	-mcpu=$(CPU)\
@@ -519,6 +528,26 @@ TEST_LDFLAGS =		-L"$(CPPUTEST_DIR)cpputest_build/lib/"\
 TEST_LDFLAGS +=		$(LDFLAGS)\
 					$(USER_TEST_LDFLAGS)\
 					$(USER_LDFLAGS)
+
+################################################################################
+#	    _             _        __ _                 
+#	   / \   _ __ ___| |__    / _| | __ _  __ _ ___ 
+#	  / _ \ | '__/ __| '_ \  | |_| |/ _` |/ _` / __|
+#	 / ___ \| | | (__| | | | |  _| | (_| | (_| \__ \
+#	/_/   \_\_|  \___|_| |_| |_| |_|\__,_|\__, |___/
+#	                                      |___/ 
+#
+
+ifeq ($(CPU),)
+  $(error "CPU" is not set)
+endif
+
+FPU ?=	
+FLOAT_ABI ?=
+
+ARCHFLAGS +=		-mcpu=$(CPU)\
+					-mthumb $(FPU)\
+					$(FLOAT_ABI)
 
 ################################################################################
 #	 _____  _                                    _           
@@ -1024,7 +1053,7 @@ target:		$(BIN_DIR)$(TARGET_DIR)$(EXEC).elf \
 $(BIN_DIR)$(TARGET_DIR)$(EXEC).elf: $(TARGET_OBJ_MAIN) $(TARGET_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CC_TARGET)	$^ $(TARGET_LDFLAGS) -Wl,-Map=$(BIN_DIR)$(TARGET_DIR)$(EXEC).map,--cref -o $@
+	@$(CC_TARGET)	$^ $(ARCHFLAGS) $(TARGET_LDFLAGS) -Wl,-Map=$(BIN_DIR)$(TARGET_DIR)$(EXEC).map,--cref -o $@
 	$(PASS)
 
 # Create target hex program

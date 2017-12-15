@@ -13,10 +13,12 @@ PROJECT_BRIEF =		This is a clean 'hello world' and 'blink' C project for \
 
 #..............................................................................#
 #	TTD
+
 CPPUTEST_DIR =		~/opt/cpputest/
 
 #..............................................................................#
 #	CPU
+
 TARGET_NAME =		stm32f072rb
 TARGET_TC_PREFIX =	arm-none-eabi-
 TARGET_TC_PATH =	~/opt/gcc-arm-none-eabi-6-2017-q2-update/bin/
@@ -26,6 +28,7 @@ TARGET_LDSCRIPT =	port/stm32f072rb/STM32F072RBTx_FLASH.ld
 
 #..............................................................................#
 #	STM32 CMSIS drivers
+
 USER_TARGET_CPPFLAGS =\
 					-DSTM32F072xB
 
