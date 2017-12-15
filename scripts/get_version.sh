@@ -20,8 +20,8 @@ IFS='.' read -r -a major_minor <<< "${tag[1]}"
 
 MAJOR=${major_minor[0]}
 MINOR=${major_minor[1]}
-BUILD=${git_raw_version[1]}
-VERSION="$MAJOR.$MINOR.$BUILD"
+PATCH=${git_raw_version[1]}
+VERSION="$MAJOR.$MINOR.$PATCH"
 
 GIT_TIMESTAMP=$(git log -1 --pretty=format:'%ci' --date=short --abbrev-commit)
 IFS=' ' read -r -a timestamp <<< "${GIT_TIMESTAMP}"
@@ -29,18 +29,17 @@ COMMIT_DATE=${timestamp[0]}
 COMMIT_TIME=${timestamp[1]}
 COMMIT_TIMEZONE=${timestamp[2]}
 
-COMPILE_TIME=$(date +%H:%M:%S)
-COMPILE_DATE=$(date +%Y-%m-%d)
-
 #Generate temporary header file
-git log -1 --pretty=format:'/******************************************************************************
+git log -1 --pretty=format:\
+'/*******************************************************************************
 	About
-******************************************************************************/
+*******************************************************************************/
 
 /**
 * \file version.h
 *
-* \brief	This file is generated automatically from script and keeps track of version control.
+* \brief	This file is generated automatically from script and keeps track
+*			of version control.
 *
 * \author	Ilias Kanelis	hkanelhs@yahoo.gr
 */
@@ -51,16 +50,16 @@ git log -1 --pretty=format:'/***************************************************
 * \code	#include <version.h>	@endcode
 */
 
-/******************************************************************************
+/*******************************************************************************
 	Code
-******************************************************************************/
+*******************************************************************************/
 
-#ifndef GIT_VERSION_H_ONLY_ONE_INCLUDE_SAFETY
-#define GIT_VERSION_H_ONLY_ONE_INCLUDE_SAFETY
+#ifndef VERSION_H_ONLY_ONE_INCLUDE_SAFETY
+#define VERSION_H_ONLY_ONE_INCLUDE_SAFETY
 
-/************************************************
+/*******************************************************************************
 	Custom definitions
-************************************************/
+*******************************************************************************/
 
 /**
  * Raw git version.
@@ -85,7 +84,7 @@ git log -1 --pretty=format:'/***************************************************
 /**
  * Commit number since last tag.
  */
-#define BUILD							"'$BUILD'"
+#define PATCH							"'$PATCH'"
 
 /**
  * Git current number of commits for the given branch.
@@ -128,16 +127,6 @@ git log -1 --pretty=format:'/***************************************************
 #define COMMIT_TIME						"'${COMMIT_TIME}'"
 
 /**
- * Compile date( Yy-Mm-Dd ).
- */
-#define COMPILE_DATE					"'${COMPILE_DATE}'"
-
-/**
- * Compile time( Hh:Mm:Ss ).
- */
-#define COMPILE_TIME					"'${COMPILE_TIME}'"
-
-/**
  * Latest git commit timezone.
  */
 #define COMMIT_TIMEZONE					"'${COMMIT_TIMEZONE}'"
@@ -147,7 +136,8 @@ git log -1 --pretty=format:'/***************************************************
  */
 #define COMMIT_COMMENT					"%s"
 
-#endif /* GIT_VERSION_H_ONLY_ONE_INCLUDE_SAFETY */' --date=short --abbrev-commit > ${GITV_H_TMP} 2> /dev/null
+#endif /* VERSION_H_ONLY_ONE_INCLUDE_SAFETY */
+' --date=short --abbrev-commit > ${GITV_H_TMP} 2> /dev/null
 
 # Replace the file only when the new file is different
 if [ ! -f ${GITV_H} ]; then

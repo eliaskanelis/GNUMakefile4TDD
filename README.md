@@ -36,12 +36,13 @@ Under GNU/Linux environment( Makefile is not tested on Windows or Mac OS )
 5. wine
 6. pc-lint.exe (with wine)
 7. valgrind
-8. perl
-9. tput
-10. git
-11. doxygen
-12. graphviz
-13. cppUtest
+8. sed
+9. perl
+10. tput
+11. git
+12. doxygen
+13. graphviz
+14. cppUtest
 
 ```sh
 sudo apt-get update
@@ -51,6 +52,7 @@ sudo apt-get install build-essential
 sudo apt-get install gdb
 #sudo apt-get install wine( build from Github script )
 sudo apt-get install valgrind
+#sudo apt-get install sed
 sudo apt-get install perl
 sudo apt-get install libncurses5-dev libncursesw5-dev
 sudo apt-get install git
@@ -83,18 +85,11 @@ To see available targets and help information:
 ```sh
 make help
 ```
-![alt text](media/makeHelp.png "make help")
 
-Build with GNU/Linux as target:
+Build host, target and tests:
 
 ```sh
 make all
-```
-
-Build with ARM as target:
-
-```sh
-make PLATFORM=target all
 ```
 
 Eclipse:

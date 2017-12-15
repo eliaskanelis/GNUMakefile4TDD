@@ -7,8 +7,6 @@
 #
 #
 
-#TODO:read me SED
-
 ################################################################################
 #	  _______          _             _     _       
 #	 |__   __|        | |           (_)   | |      
@@ -37,6 +35,10 @@ CHROMIUM_EXISTS :=	$(shell command -v chromium-browser 2> /dev/null)
 # Check cppUtest path
 ifeq ($(CPPUTEST_DIR),)
   $(error 'CPPUTEST_DIR' is not specified)
+endif
+
+ifndef SED_EXISTS
+	$(error "Please install 'sed' scripting language!")
 endif
 
 ################################################################################
@@ -156,13 +158,14 @@ SED ?=				sed
 #..............................................................................#
 #	Messages
 
-BUILDING ?=			$(ECHO_N)	"\tBuilding : $@\t"
-COMPILING ?=		$(ECHO_N)	"\tCompiling: $<\t"
+BUILDING ?=			$(ECHO_N)	"\tBuilding      : $@\t"
+COMPILING ?=		$(ECHO_N)	"\tCompiling     : $<\t"
 BUILD_SUCCESS ?=	$(ECHO)		"\tBuild successful"
-RUNNING ?=			$(ECHO)		"\tRunning  : $^"
-VERSION ?=			$(ECHO_N)	"\tVersion  : \t"
+RUNNING ?=			$(ECHO)		"\tRunning       : $^"
+VERSION ?=			$(ECHO_N)	"\tVersion       : \t"
 CLEANING ?=			$(ECHO_N)	"\tCleaning project\t"
 PASS ?=				$(ECHO)		"\tOK"
+DOCUMENTATION ?=	$(ECHO_N)	"\tDocumentation : \t"
 
 ################################################################################
 #	 _____                            _                 _           
@@ -286,11 +289,13 @@ CXXFLAGS =			-std=c++98
 #..............................................................................#
 # Host C++ flags
 HOST_CXXFLAGS =		$(CXXFLAGS)\
+					$(USER_HOST_CXXFLAGS)\
 					$(USER_CXXFLAGS)
 
 #..............................................................................#
 # Target C++ flags
 TARGET_CXXFLAGS =	$(CXXFLAGS)\
+					$(USER_TARGET_CXXFLAGS)\
 					$(USER_CXXFLAGS)				
 
 #..............................................................................#
@@ -300,6 +305,7 @@ TEST_CXXFLAGS =		-I"$(CPPUTEST_DIR)include/"\
 									MemoryLeakDetectorNewMacros.h"
 
 TEST_CXXFLAGS +=	$(CXXFLAGS)\
+					$(USER_TEST_CXXFLAGS)\
 					$(USER_CXXFLAGS)
 
 ################################################################################
@@ -555,7 +561,7 @@ default: build
 
 .PHONY: all
 all: ##@build Builds project and its documentation.
-all: build doc
+all: doc build
 
 .PHONY: rebuild
 rebuild: ##@build Rebuilds project without documentation.
@@ -660,8 +666,7 @@ doc: export PROJECT_NUMBER ?=	Beta
 doc: export PROJECT_NAME ?=		Untitled
 doc: export PROJECT_BRIEF ?=	
 doc:
-	$(ECHO)
-	$(ECHO)			"Building documentation"
+	$(DOCUMENTATION)
 	$(MKDIR_P)		$(DOC_DIR)html
 	@(cd conf/doxygen/ && doxygen)
 	$(PASS)
