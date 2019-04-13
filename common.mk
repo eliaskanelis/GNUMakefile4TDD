@@ -3,16 +3,22 @@
 #	GNU Make makefile for cross-compile and Test driven development in C for
 #	dual-targeted environments
 #
-#	Version:    Beta_3
-#   Date:       2017/12/9
-#	Maintainer: Ilias Kanelis (hkanelhs@yahoo.gr)
-#   License:    MIT
+#	Version:    Beta_3.2
+#	Date:       2018/01/09
+#	Maintainer: Elias Kanelis (hkanelhs@yahoo.gr)
+#	License:    MIT
+#
+#	Changes:
+#
+#	-ported to thinkpad laptop			2018/08/08
+#	-added port directory to 'todo' rule		2018/01/09
+#	-created					2017/12/09
 #
 
 ################################################################################
-#	  _______          _             _     _       
-#	 |__   __|        | |           (_)   | |      
-#	    | | ___   ___ | |   _____  ___ ___| |_ ___ 
+#	  _______          _             _     _
+#	 |__   __|        | |           (_)   | |
+#	    | | ___   ___ | |   _____  ___ ___| |_ ___
 #	    | |/ _ \ / _ \| |  / _ \ \/ / / __| __/ __|
 #	    | | (_) | (_) | | |  __/>  <| \__ \ |_\__ \
 #	    |_|\___/ \___/|_|  \___/_/\_\_|___/\__|___/
@@ -22,7 +28,6 @@
 GCC_EXISTS :=		$(shell command -v gcc 2> /dev/null)
 GPP_EXISTS :=		$(shell command -v g++ 2> /dev/null)
 GDB_EXISTS :=		$(shell command -v gdb 2> /dev/null)
-WINE_EXISTS :=		$(shell command -v wine 2> /dev/null)
 VALGRIND_EXISTS :=	$(shell command -v valgrind 2> /dev/null)
 SED_EXISTS :=		$(shell command -v sed 2> /dev/null)
 PERL_EXISTS :=		$(shell command -v perl 2> /dev/null)
@@ -32,7 +37,8 @@ DOT_EXISTS :=		$(shell command -v dot 2> /dev/null)
 JLINK_EXISTS :=		$(shell command -v JLinkExe 2> /dev/null)
 SALEAE_EXISTS :=	$(shell command -v Saleae 2> /dev/null)
 PICOCOM_EXISTS :=	$(shell command -v picocom 2> /dev/null)
-CHROMIUM_EXISTS :=	$(shell command -v chromium-browser 2> /dev/null)
+FIREFOX_EXISTS :=	$(shell command -v firefox 2> /dev/null)
+FLINT_EXISTS :=		$(shell command -v flint 2> /dev/null)
 
 # Check cppUtest path
 ifeq ($(CPPUTEST_DIR),)
@@ -45,14 +51,14 @@ ifndef SED_EXISTS
 endif
 
 ################################################################################
-#	  _____           _           _   
-#	 |  __ \         (_)         | |  
-#	 | |__) | __ ___  _  ___  ___| |_ 
+#	  _____           _           _
+#	 |  __ \         (_)         | |
+#	 | |__) | __ ___  _  ___  ___| |_
 #	 |  ___/ '__/ _ \| |/ _ \/ __| __|
-#	 | |   | | | (_) | |  __/ (__| |_ 
+#	 | |   | | | (_) | |  __/ (__| |_
 #	 |_|   |_|  \___/| |\___|\___|\__|
-#	                _/ |              
-#	               |__/               
+#	                _/ |
+#	               |__/
 #
 
 # Name of the build output
@@ -61,7 +67,7 @@ ifeq ($(EXEC),)
 endif
 
 # Build configuration options
-CONF ?=				dbg
+CONF ?=			dbg
 ifneq ($(CONF),dbg)
   ifneq ($(CONF),rel)
     $(error "CONF" variable can not be "$(CONF)")
@@ -71,14 +77,14 @@ endif
 # Project version
 ifdef GIT_EXISTS
   PROJECT_NUMBER ?=	$(shell git describe --always \
-						--dirty=" (with uncommitted changes)" --long --tags)
+				--dirty=" (with uncommitted changes)" --long --tags)
 endif
 
 #..............................................................................#
-#	Machine
+# Machine
 
 ifdef SYSTEMROOT
-  MACHINE =			win32
+  MACHINE =		win32
   $(error Windows compatibility is not verified)
 else
   ifeq ($(shell uname), Linux)
@@ -89,17 +95,17 @@ else
 endif
 
 #..............................................................................#
-#	Directories
+# Directories
 
-BIN_DIR ?=			bin/
-OBJ_DIR ?=			obj/
-INC_DIR ?=			inc/
-SRC_DIR ?=			src/
-DOC_DIR ?=			doc/
-TMP_DIR ?=			tmp/
-LIB_DIR ?=			lib/
+BIN_DIR ?=		bin/
+OBJ_DIR ?=		obj/
+INC_DIR ?=		inc/
+SRC_DIR ?=		src/
+DOC_DIR ?=		doc/
+TMP_DIR ?=		tmp/
+LIB_DIR ?=		lib/
 TESTS_DIR ?=	 	tests/
-PORT_DIR ?=			port/
+PORT_DIR ?=		port/
 
 # Target name
 ifeq ($(TARGET_NAME),)
@@ -107,32 +113,32 @@ ifeq ($(TARGET_NAME),)
 endif
 
 TARGET_DIR ?=		$(TARGET_NAME)_$(CONF)/
-HOST_DIR ?=			$(MACHINE)_$(CONF)/
+HOST_DIR ?=		$(MACHINE)_$(CONF)/
 
 ################################################################################
-#	 _____           _     
-#	|_   _|__   ___ | |___ 
+#	 _____           _
+#	|_   _|__   ___ | |___
 #	  | |/ _ \ / _ \| / __|
 #	  | | (_) | (_) | \__ \
 #	  |_|\___/ \___/|_|___/
-#	                       
+#
 #
 
 #..............................................................................#
 # Host toolchain
-CC_HOST ?=			gcc
-CXX_HOST ?=			g++
-AS_HOST ?=			gcc -x assembler-with-cpp
-CP_HOST ?=			objcopy
-AR_HOST ?=			ar
-SZ_HOST ?=			size
-HEX_HOST ?=			objcopy -O ihex
-BIN_HOST ?=			objcopy -O binary -S
+CC_HOST ?=		gcc
+CXX_HOST ?=		g++
+AS_HOST ?=		gcc -x assembler-with-cpp
+CP_HOST ?=		objcopy
+AR_HOST ?=		ar
+SZ_HOST ?=		size
+HEX_HOST ?=		objcopy -O ihex
+BIN_HOST ?=		objcopy -O binary -S
 
 #..............................................................................#
 # Target toolchain
 
-TARGET_TC_PATH ?=	
+TARGET_TC_PATH ?=	""
 
 ifeq ($(TARGET_TC_PREFIX),)
   $(error 'TARGET_TC_PREFIX' is not specified)
@@ -148,20 +154,21 @@ HEX_TARGET ?=		$(TARGET_TC_PATH)$(TARGET_TC_PREFIX)objcopy -O ihex
 BIN_TARGET ?=		$(TARGET_TC_PATH)$(TARGET_TC_PREFIX)objcopy -O binary -S
 
 #..............................................................................#
-#	Tools
+# Tools
 
-ECHO ?=				echo
-ECHO_N ?=			echo -n
-MKDIR_P ?=			@mkdir -p
-RM_FR ?=			@rm -fR
-MV_F ?=				@mv -f
-TOUCH ?=			touch
-SED ?=				sed
+ECHO ?=			echo
+ECHO_N ?=		echo -n
+MKDIR_P ?=		@mkdir -p
+RM_FR ?=		@rm -fR
+MV_F ?=			@mv -f
+TOUCH ?=		touch
+SED ?=			sed
+FLINT ?=		flint
 
 ################################################################################
-#	 _    _ _   _ _ _ _   _           
-#	| |  | | | (_) (_) | (_)          
-#	| |  | | |_ _| |_| |_ _  ___  ___ 
+#	 _    _ _   _ _ _ _   _
+#	| |  | | | (_) (_) | (_)
+#	| |  | | |_ _| |_| |_ _  ___  ___
 #	| |  | | __| | | | __| |/ _ \/ __|
 #	| |__| | |_| | | | |_| |  __/\__ \
 #	 \____/ \__|_|_|_|\__|_|\___||___/
@@ -179,8 +186,8 @@ ifeq ($(COLORS),NO)
 
   # Messages
   BUILD_SUCCESS ?=	@$(ECHO) "\tBuild successful"
-  FLASH ?=			@$(ECHO) "\tFlashing MCU"
-  ERASE ?=			@$(ECHO) "\tErasing MCU"
+  FLASH ?=		@$(ECHO) "\tFlashing MCU"
+  ERASE ?=		@$(ECHO) "\tErasing MCU"
   CLEANING ?=		@$(ECHO) "\tCleaning project\t"
 
   COMPILING ?=		@$(ECHO) "\tCompiling $<\t"
@@ -199,22 +206,22 @@ else
   TPUT_RESET =		$(shell tput -Txterm sgr0)
 
 
-  RED =				@tput bold && tput -Txterm setaf 1
-  GREEN =			@tput bold && tput -Txterm setaf 2
-  YELLOW =			@tput bold && tput -Txterm setaf 3
-  BLUE =			@tput bold && tput -Txterm setaf 4
-  RESET =			tput -Txterm sgr0
+  RED =			@tput bold && tput -Txterm setaf 1
+  GREEN =		@tput bold && tput -Txterm setaf 2
+  YELLOW =		@tput bold && tput -Txterm setaf 3
+  BLUE =		@tput bold && tput -Txterm setaf 4
+  RESET =		tput -Txterm sgr0
 
   # Messages
   BUILD_SUCCESS ?=	$(GREEN)  && $(ECHO)   "\tBuild successful"	&& $(RESET)
-  FLASH ?=			$(YELLOW) && $(ECHO)   "\tFlashing MCU"		&& $(RESET)
-  ERASE ?=			$(RED)    && $(ECHO)   "\tErasing MCU"		&& $(RESET)
-  CLEANING ?=		$(RED)    && $(ECHO)   "\tCleaning project\t"&& $(RESET)
+  FLASH ?=		$(YELLOW) && $(ECHO)   "\tFlashing MCU"		&& $(RESET)
+  ERASE ?=		$(RED)    && $(ECHO)   "\tErasing MCU"		&& $(RESET)
+  CLEANING ?=		$(RED)    && $(ECHO)   "\tCleaning project\t"	&& $(RESET)
 
   COMPILING ?=		$(YELLOW) && $(ECHO_N) "\tCompiling"		&& $(RESET) && $(ECHO) " $<\t"
   BUILDING ?=		$(YELLOW) && $(ECHO_N) "\tBuilding "		&& $(RESET) && $(ECHO) " $@\t"
   RUNNING ?=		$(YELLOW) && $(ECHO_N) "\tRunning  "		&& $(RESET) && $(ECHO) " $^"
-  VERSION ?=		$(YELLOW) && $(ECHO)   "\tVersion"			&& $(RESET)
+  VERSION ?=		$(YELLOW) && $(ECHO)   "\tVersion"		&& $(RESET)
   DOCUMENTATION ?=	$(YELLOW) && $(ECHO)   "\tDocumentation"	&& $(RESET)
 
 endif
@@ -236,25 +243,25 @@ HELP_FUNC := \
 	for ( sort keys %help ) { \
 		print "$(TPUT_WHITE)$$_:$(TPUT_RESET)\n"; \
 		printf("  $(TPUT_YELLOW)%-20s$(TPUT_RESET) \
-						$(TPUT_GREEN)%s$(TPUT_RESET)\n", $$_->[0], \
-						$$_->[1]) for @{$$help{$$_}}; \
+			$(TPUT_GREEN)%s$(TPUT_RESET)\n", $$_->[0], \
+			$$_->[1]) for @{$$help{$$_}}; \
 		print "\n"; \
 	}
 
 ################################################################################
-#	 _____                            _                 _           
-#	|  __ \                          | |               (_)          
-#	| |  | | ___ _ __   ___ _ __   __| | ___ _ __   ___ _  ___  ___ 
+#	 _____                            _                 _
+#	|  __ \                          | |               (_)
+#	| |  | | ___ _ __   ___ _ __   __| | ___ _ __   ___ _  ___  ___
 #	| |  | |/ _ \ '_ \ / _ \ '_ \ / _` |/ _ \ '_ \ / __| |/ _ \/ __|
 #	| |__| |  __/ |_) |  __/ | | | (_| |  __/ | | | (__| |  __/\__ \
 #	|_____/ \___| .__/ \___|_| |_|\__,_|\___|_| |_|\___|_|\___||___/
-#	            | |                                                 
-#	            |_|                                                 
+#	            | |
+#	            |_|
 #
 #
 
 # Auxiliary files that build depends on
-AUX = 				Makefile common.mk
+AUX = 			Makefile common.mk
 
 #..............................................................................#
 
@@ -287,7 +294,7 @@ HOST_OBJ_MAIN +=	$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_C_MAIN:%.c=%.o))
 HOST_OBJ_MAIN +=	$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_AS_MAIN:%.s=%.o))
 
 # Object files
-HOST_OBJS =			$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_CXX_SRCs:%.cpp=%.o))
+HOST_OBJS =		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_CXX_SRCs:%.cpp=%.o))
 HOST_OBJS +=		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_C_SRCs:%.c=%.o))
 HOST_OBJS +=		$(addprefix $(OBJ_DIR)$(HOST_DIR),$(HOST_AS_SRCs:%.s=%.o))
 
@@ -344,128 +351,126 @@ TEST_AS_SRCs +=		$(USER_TEST_AS_SRCs)
 TEST_AS_SRCs +=		$(HOST_AS_SRCs)
 
 # Test object files
-TEST_OBJS =			$(addprefix $(OBJ_DIR)$(TESTS_DIR),$(TEST_CXX_SRCs:%.cpp=%.o))
+TEST_OBJS =		$(addprefix $(OBJ_DIR)$(TESTS_DIR),$(TEST_CXX_SRCs:%.cpp=%.o))
 TEST_OBJS +=		$(addprefix $(OBJ_DIR)$(TESTS_DIR),$(TEST_C_SRCs:%.c=%.o))
 TEST_OBJS +=		$(addprefix $(OBJ_DIR)$(TESTS_DIR),$(TEST_AS_SRCs:%.s=%.o))
 
 ################################################################################
-#	  ____              _____ _                 
-#	 / ___| _     _    |  ___| | __ _  __ _ ___ 
+#	  ____              _____ _
+#	 / ___| _     _    |  ___| | __ _  __ _ ___
 #	| |   _| |_ _| |_  | |_  | |/ _` |/ _` / __|
 #	| |__|_   _|_   _| |  _| | | (_| | (_| \__ \
 #	 \____||_|   |_|   |_|   |_|\__,_|\__, |___/
-#	                                  |___/ 
+#	                                  |___/
 #
 
 # Default compiler C++ flags
-CXXFLAGS =			-std=c++98
+CXXFLAGS =		-std=c++98
 
 #..............................................................................#
 # Host C++ flags
 HOST_CXXFLAGS =		$(CXXFLAGS)\
-					$(USER_HOST_CXXFLAGS)\
-					$(USER_CXXFLAGS)
+			$(USER_HOST_CXXFLAGS)\
+			$(USER_CXXFLAGS)
 
 #..............................................................................#
 # Target C++ flags
 TARGET_CXXFLAGS =	$(CXXFLAGS)\
-					$(USER_TARGET_CXXFLAGS)\
-					$(USER_CXXFLAGS)				
+			$(USER_TARGET_CXXFLAGS)\
+			$(USER_CXXFLAGS)
 
 #..............................................................................#
 # Test C++ flags
-TEST_CXXFLAGS =		-I"$(CPPUTEST_DIR)include/"\
-					-I"$(CPPUTEST_DIR)include/CppUTest/\
-									MemoryLeakDetectorNewMacros.h"
+TEST_CXXFLAGS =		-I"$(CPPUTEST_DIR)/include/"\
+			-I"$(CPPUTEST_DIR)/include/CppUTest/MemoryLeakDetectorNewMacros.h"
 
 TEST_CXXFLAGS +=	$(CXXFLAGS)\
-					$(USER_TEST_CXXFLAGS)\
-					$(USER_CXXFLAGS)
+			$(USER_TEST_CXXFLAGS)\
+			$(USER_CXXFLAGS)
 
 ################################################################################
-#	  ____   _____ _                 
-#	 / ___| |  ___| | __ _  __ _ ___ 
+#	  ____   _____ _
+#	 / ___| |  ___| | __ _  __ _ ___
 #	| |     | |_  | |/ _` |/ _` / __|
 #	| |___  |  _| | | (_| | (_| \__ \
 #	 \____| |_|   |_|\__,_|\__, |___/
-#	                       |___/ 
+#	                       |___/
 #
 
 # Default compiler C flags
-CFLAGS =			
+CFLAGS =
 
 #..............................................................................#
 # Host C flags
 HOST_CFLAGS =		-std=gnu99
 
 HOST_CFLAGS +=		$(CFLAGS)\
-					$(USER_HOST_CFLAGS)\
-					$(USER_CFLAGS)
+			$(USER_HOST_CFLAGS)\
+			$(USER_CFLAGS)
 
 #..............................................................................#
 # Target C flags
 TARGET_CFLAGS =		-std=c99
 
 TARGET_CFLAGS +=	$(CFLAGS)\
-					$(USER_TARGET_CFLAGS)\
-					$(USER_CFLAGS)	
+			$(USER_TARGET_CFLAGS)\
+			$(USER_CFLAGS)
 
 #..............................................................................#
 # Test C flags
 TEST_CFLAGS =		-std=gnu99
 
-TEST_CFLAGS +=		-I"$(CPPUTEST_DIR)include/"\
-					-I"$(CPPUTEST_DIR)include/CppUTest/\
-									MemoryLeakDetectorMallocMacros.h"
+TEST_CFLAGS +=		-I"$(CPPUTEST_DIR)/include/"\
+			-I"$(CPPUTEST_DIR)/include/CppUTest/MemoryLeakDetectorMallocMacros.h"
 
 TEST_CFLAGS +=		$(CFLAGS)\
-					$(USER_TEST_CFLAGS)\
-					$(USER_CFLAGS)
+			$(USER_TEST_CFLAGS)\
+			$(USER_CFLAGS)
 
 ################################################################################
-#	    _                           _     _             _____ _                 
-#	   / \   ___ ___  ___ _ __ ___ | |__ | | ___ _ __  |  ___| | __ _  __ _ ___ 
+#	    _                           _     _             _____ _
+#	   / \   ___ ___  ___ _ __ ___ | |__ | | ___ _ __  |  ___| | __ _  __ _ ___
 #	  / _ \ / __/ __|/ _ \ '_ ` _ \| '_ \| |/ _ \ '__| | |_  | |/ _` |/ _` / __|
 #	 / ___ \\__ \__ \  __/ | | | | | |_) | |  __/ |    |  _| | | (_| | (_| \__ \
 #	/_/   \_\___/___/\___|_| |_| |_|_.__/|_|\___|_|    |_|   |_|\__,_|\__, |___/
-#	                                                                  |___/    
+#	                                                                  |___/
 #
 
 # Default assembler flags
-ASFLAGS =			
+ASFLAGS =
 
 #..............................................................................#
 # Host assembler flags
 HOST_ASFLAGS =		$(ASFLAGS)\
-					$(USER_HOST_ASFLAGS)\
-					$(USER_ASFLAGS)
+			$(USER_HOST_ASFLAGS)\
+			$(USER_ASFLAGS)
 
 #..............................................................................#
 # Target assembler flags
 TARGET_ASFLAGS =	$(ASFLAGS)\
-					$(USER_TARGET_ASFLAGS)\
-					$(USER_ASFLAGS)	
+			$(USER_TARGET_ASFLAGS)\
+			$(USER_ASFLAGS)
 
 #..............................................................................#
 # Test assembler flags
 TEST_ASFLAGS =		$(ASFLAGS)\
-					$(USER_TEST_ASFLAGS)\
-					$(USER_ASFLAGS)
+			$(USER_TEST_ASFLAGS)\
+			$(USER_ASFLAGS)
 
 ################################################################################
-#	 ____                   __                _____ _                 
-#	|  _ \ _ __ ___ _ __   / /__  ___  _ __  |  ___| | __ _  __ _ ___ 
+#	 ____                   __                _____ _
+#	|  _ \ _ __ ___ _ __   / /__  ___  _ __  |  ___| | __ _  __ _ ___
 #	| |_) | '__/ _ \ '_ \ / / __|/ _ \| '__| | |_  | |/ _` |/ _` / __|
 #	|  __/| | |  __/ |_) / /\__ \ (_) | |    |  _| | | (_| | (_| \__ \
 #	|_|   |_|  \___| .__/_/ |___/\___/|_|    |_|   |_|\__,_|\__, |___/
-#	               |_|                                      |___/   
+#	               |_|                                      |___/
 #
 
 # Warnings and error notification
-CPPFLAGS =			-w\
-					-Wall\
-					-Werror\
-					-pedantic-errors
+CPPFLAGS =		-w\
+			-Wall\
+			-Werror\
+			-pedantic-errors
 
 # Debug flags
 ifeq ($(CONF),rel)
@@ -482,34 +487,34 @@ else
 endif
 
 # Compilation options
-CPPFLAGS +=			-fdata-sections\
-					-ffunction-sections
+CPPFLAGS +=		-fdata-sections\
+			-ffunction-sections
 
 #..............................................................................#
 # Host compiler preprossesor flags
 HOST_CPPFLAGS =		$(CPPFLAGS)\
-					$(USER_HOST_CPPFLAGS)\
-					$(USER_CPPFLAGS)
+			$(USER_HOST_CPPFLAGS)\
+			$(USER_CPPFLAGS)
 
 #..............................................................................#
 # Target compiler preprossesor flags
 TARGET_CPPFLAGS =	$(CPPFLAGS)\
-					$(USER_TARGET_CPPFLAGS)\
-					$(USER_CPPFLAGS)
+			$(USER_TARGET_CPPFLAGS)\
+			$(USER_CPPFLAGS)
 
 #..............................................................................#
 # Test compiler preprossesor flags
 TEST_CPPFLAGS =		$(CPPFLAGS)\
-					$(USER_TEST_CPPFLAGS)\
-					$(USER_CPPFLAGS)
+			$(USER_TEST_CPPFLAGS)\
+			$(USER_CPPFLAGS)
 
 ################################################################################
-#	 ____                 __ _                 
-#	|  _ \  ___ _ __     / _| | __ _  __ _ ___ 
+#	 ____                 __ _
+#	|  _ \  ___ _ __     / _| | __ _  __ _ ___
 #	| | | |/ _ \ '_ \   | |_| |/ _` |/ _` / __|
 #	| |_| |  __/ |_) |  |  _| | (_| | (_| \__ \
 #	|____/ \___| .__(_) |_| |_|\__,_|\__, |___/
-#	           |_|                   |___/  
+#	           |_|                   |___/
 #
 
 HOST_DEPFLAGS =		-MT"$(@:%.o=%.d)" -MMD -MP -MF $(OBJ_DIR)$(HOST_DIR)$*.Td
@@ -519,114 +524,114 @@ TARGET_DEPFLAGS =	-MT"$(@:%.o=%.d)" -MMD -MP -MF $(OBJ_DIR)$(TARGET_DIR)$*.Td
 TEST_DEPFLAGS =		-MT"$(@:%.o=%.d)" -MMD -MP -MF $(OBJ_DIR)$(TESTS_DIR)$*.Td
 
 ################################################################################
-#	 ___            _           _         __ _                 
-#	|_ _|_ __   ___| |_   _  __| | ___   / _| | __ _  __ _ ___ 
+#	 ___            _           _         __ _
+#	|_ _|_ __   ___| |_   _  __| | ___   / _| | __ _  __ _ ___
 #	 | || '_ \ / __| | | | |/ _` |/ _ \ | |_| |/ _` |/ _` / __|
 #	 | || | | | (__| | |_| | (_| |  __/ |  _| | (_| | (_| \__ \
 #	|___|_| |_|\___|_|\__,_|\__,_|\___| |_| |_|\__,_|\__, |___/
-#	                                                 |___/ 
+#	                                                 |___/
 #
 
 # Include directories
-INCLUDES =			-I$(SRC_DIR) -I$(PORT_DIR) -I$(HOST_DIR) -I$(INC_DIR)
+INCLUDES =		-I$(SRC_DIR) -I$(PORT_DIR) -I$(HOST_DIR) -I$(INC_DIR)
 
 #..............................................................................#
 # Host include directories
 HOST_INCLUDES =		$(INCLUDES)\
-					$(USER_HOST_INCLUDES)\
-					$(USER_INCLUDES)
+			$(USER_HOST_INCLUDES)\
+			$(USER_INCLUDES)
 
 #..............................................................................#
 # Target include directories
 TARGET_INCLUDES =	$(INCLUDES)\
-					$(USER_TARGET_INCLUDES)\
-					$(USER_INCLUDES)	
+			$(USER_TARGET_INCLUDES)\
+			$(USER_INCLUDES)
 
 #..............................................................................#
 # Test include directories
 TEST_INCLUDES =		$(INCLUDES)\
-					$(USER_TEST_INCLUDES)\
-					$(USER_INCLUDES)
+			$(USER_TEST_INCLUDES)\
+			$(USER_INCLUDES)
 
 ################################################################################
-#	 _     _       _               _____ _                 
-#	| |   (_)_ __ | | _____ _ __  |  ___| | __ _  __ _ ___ 
+#	 _     _       _               _____ _
+#	| |   (_)_ __ | | _____ _ __  |  ___| | __ _  __ _ ___
 #	| |   | | '_ \| |/ / _ \ '__| | |_  | |/ _` |/ _` / __|
 #	| |___| | | | |   <  __/ |    |  _| | | (_| | (_| \__ \
 #	|_____|_|_| |_|_|\_\___|_|    |_|   |_|\__,_|\__, |___/
-#	                                             |___/   
-# 
+#	                                             |___/
+#
 
 # Linker flags
-LDFLAGS =			-L$(LIB_DIR)\
-					-lc\
-					-lm
+LDFLAGS =		-L$(LIB_DIR)\
+			-lc\
+			-lm
 
-LDFLAGS +=			-Wl,-u \
-					-Wl,_printf_float\
-					-Wl,--gc-sections
+LDFLAGS +=		-Wl,-u \
+			-Wl,_printf_float\
+			-Wl,--gc-sections
 
 #..............................................................................#
 # Host compiler linker flags
 HOST_LDFLAGS =		$(LDFLAGS)\
-					$(USER_HOST_LDFLAGS)\
-					$(USER_LDFLAGS)
+			$(USER_HOST_LDFLAGS)\
+			$(USER_LDFLAGS)
 
 #..............................................................................#
 # Target compiler linker flags
 TARGET_LDFLAGS =	$(LDFLAGS)\
-					$(USER_TARGET_LDFLAGS)\
-					$(USER_LDFLAGS)
+			$(USER_TARGET_LDFLAGS)\
+			$(USER_LDFLAGS)
 
 # Linker script
 ifeq ($(TARGET_LDSCRIPT),)
-  $(error "TARGET_LDSCRIPT" does not contain a linker script path!")
+  $(error "TARGET_LDSCRIPT does not contain a linker script path!")
 endif
 
 TARGET_LDFLAGS +=	-T$(TARGET_LDSCRIPT)\
-					-specs=nano.specs\
-					-lnosys\
-					-lrdimon
+			-specs=nano.specs\
+			-lnosys\
+			-lrdimon
 
 #..............................................................................#
 # Test compiler linker flags
-TEST_LDFLAGS =		-L"$(CPPUTEST_DIR)cpputest_build/lib/"\
-					-lCppUTest\
-					-lCppUTestExt
+TEST_LDFLAGS =		-L"$(CPPUTEST_DIR)/cpputest_build/lib/"\
+			-lCppUTest\
+			-lCppUTestExt
 
 TEST_LDFLAGS +=		$(LDFLAGS)\
-					$(USER_TEST_LDFLAGS)\
-					$(USER_LDFLAGS)
+			$(USER_TEST_LDFLAGS)\
+			$(USER_LDFLAGS)
 
 ################################################################################
-#	    _             _        __ _                 
-#	   / \   _ __ ___| |__    / _| | __ _  __ _ ___ 
+#	    _             _        __ _
+#	   / \   _ __ ___| |__    / _| | __ _  __ _ ___
 #	  / _ \ | '__/ __| '_ \  | |_| |/ _` |/ _` / __|
 #	 / ___ \| | | (__| | | | |  _| | (_| | (_| \__ \
 #	/_/   \_\_|  \___|_| |_| |_| |_|\__,_|\__, |___/
-#	                                      |___/ 
+#	                                      |___/
 #
 
 ifeq ($(CPU),)
   $(error "CPU" is not set)
 endif
 
-FPU ?=	
+FPU ?=
 FLOAT_ABI ?=
 
 ARCHFLAGS +=		-mcpu=$(CPU)\
-					-mthumb $(FPU)\
-					$(FLOAT_ABI)
+			-mthumb $(FPU)\
+			$(FLOAT_ABI)
 
 ################################################################################
-#	 _____  _                                    _           
-#	|  __ \| |                                  | |          
-#	| |__) | |__   ___  _ __  _   _   _ __ _   _| | ___  ___ 
+#	 _____  _                                    _
+#	|  __ \| |                                  | |
+#	| |__) | |__   ___  _ __  _   _   _ __ _   _| | ___  ___
 #	|  ___/| '_ \ / _ \| '_ \| | | | | '__| | | | |/ _ \/ __|
 #	| |    | | | | (_) | | | | |_| | | |  | |_| | |  __/\__ \
 #	|_|    |_| |_|\___/|_| |_|\__, | |_|   \__,_|_|\___||___/
-#	                           __/ |                         
-#	                          |___/                          
+#	                           __/ |
+#	                          |___/
 #
 
 .PHONY: default
@@ -639,7 +644,7 @@ all: doc build
 
 .PHONY: rebuild
 rebuild: ##@build Rebuilds project without documentation.
-rebuild: clean build 
+rebuild: clean build
 
 .PHONY: build
 build: ##@build Builds project without documentation.
@@ -672,7 +677,7 @@ endif
 
 .PHONY: tools
 tools: ##@options Checks if tools used in this Makefile are installed.
-	$(ECHO_N) 		"\tChecking tools\t"
+	@$(ECHO_N) 		"\tChecking tools:\t"
 ifndef GCC_EXISTS
 	$(warning "Please install 'gcc' compiler!")
 endif
@@ -681,9 +686,6 @@ ifndef GPP_EXISTS
 endif
 ifndef GDB_EXISTS
 	$(warning "Please install 'gdb' debugger!")
-endif
-ifndef WINE_EXISTS
-	$(warning "Please install 'wine' windows emulation!")
 endif
 ifndef VALGRIND_EXISTS
 	$(warning "Please install 'valgrind' dynamical analyser!")
@@ -712,8 +714,11 @@ endif
 ifndef PICOCOM_EXISTS
 	$(warning "Please install 'picocom' terminal emulation!")
 endif
-ifndef CHROMIUM_EXISTS
-	$(warning "Please install 'chromium-browser'!")
+ifndef FIREFOX_EXISTS
+	$(warning "Please install 'firefox'!")
+endif
+ifndef FLINT_EXISTS
+	$(warning "Please install 'flint'!")
 endif
 
 #..............................................................................#
@@ -733,9 +738,9 @@ runTests: $(BIN_DIR)$(HOST_DIR)$(EXEC)_runTests
 # TODO: Add port/ and build for TARGET_DIR
 .PHONY: doc
 doc: ##@doc Generates documentation.
-doc: export PROJECT_NUMBER ?=	Beta
-doc: export PROJECT_NAME ?=		Untitled
-doc: export PROJECT_BRIEF ?=	
+doc: export PROJECT_NUMBER ?=	"Beta"
+doc: export PROJECT_NAME ?=	"Untitled"
+doc: export PROJECT_BRIEF ?=	""
 doc:
 	$(DOCUMENTATION)
 	$(MKDIR_P)		$(DOC_DIR)html
@@ -744,8 +749,8 @@ doc:
 .PHONY: show
 show: ##@doc Shows documentation.
 show: doc
-ifdef CHROMIUM_EXISTS
-	@chromium-browser $(DOC_DIR)html/index.html >>/dev/null
+ifdef FIREFOX_EXISTS
+	@firefox $(DOC_DIR)html/index.html >>/dev/null
 else
 	$(warning "Please install 'chromium-browser'!")
 endif
@@ -753,144 +758,34 @@ endif
 #..............................................................................#
 #	Analysis
 
+#TODO: Build with the same flags gcc compiler!
 .PHONY: lint
-lint: ##@analysis Lint static analysis (pc-lint).
-lint: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
-								$(TMP_DIR)lint_cmac.h $(TMP_DIR)lint_cppmac.h
-ifndef WINE_EXISTS
-	$(error "Please install 'wine and pc-lint'!")
+lint: ##@analysis Lint static analysis (flexelint).
+lint: version
+ifndef FLINT_EXISTS
+	$(error "Please install 'flint'!")
 endif
 	@$(ECHO)
-	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
-									-iconf/pc-lint/ \
-									-iconf/pc-lint/gcc_x86_64 \
-									au-ds.lnt \
-									au-barr10.lnt \
-									au-netrino.lnt \
-									au-misra1.lnt \
-									au-misra2.lnt \
-									au-misra3.lnt \
-									options.lnt \
-									temp.lnt \
-									$(INCLUDES) \
-									$(HOST_C_SRCs) | tr '\\\r' '/ '
+	@$(MKDIR_P)	$(TMP_DIR)
+	@make		-C $(TMP_DIR) \
+			-f $(PC_LINT_DIR)/config/compiler/co-gcc.mak \
+			GCC_BIN=$(CC_HOST) \
+			GXX_BIN=$(CXX_HOST) \
+			CFLAGS=$(HOST_CFLAGS) \
+			CXXFLAGS=$(HOST_CXXFLAGS) \
+			CPPFLAGS= \
+			COMMON_FLAGS= \
+			> /dev/null
+	@$(FLINT)	-w1 -t4 \
+			-i$(TMP_DIR) \
+			-i$(PC_LINT_DIR)/config/author \
+			-i$(PC_LINT_DIR)/config/compiler \
+			-i$(PC_LINT_DIR)/config/environment \
+			co-gcc.lnt \
+			env-posix.lnt \
+			$(INCLUDES) \
+			$(HOST_C_SRCs)
 	@$(ECHO)
-
-.PHONY: barr10
-barr10: ##@analysis Lint static analysis for barr10 coding standard (pc-lint).
-barr10: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
-								$(TMP_DIR)lint_cmac.h $(TMP_DIR)lint_cppmac.h
-ifndef WINE_EXISTS
-	$(error "Please install 'wine and pc-lint'!")
-endif
-	@$(ECHO)
-	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
-									-iconf/pc-lint/ \
-									-iconf/pc-lint/gcc_x86_64 \
-									au-barr10.lnt \
-									options.lnt \
-									temp.lnt \
-									$(INCLUDES) \
-									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	@$(ECHO)
-
-.PHONY: netrino
-netrino: ##@analysis Lint static analysis for netrino coding standard (pc-lint).
-netrino: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
-								$(TMP_DIR)lint_cmac.h $(TMP_DIR)lint_cppmac.h
-ifndef WINE_EXISTS
-	$(error "Please install 'wine and pc-lint'!")
-endif
-	@$(ECHO)
-	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
-									-iconf/pc-lint/ \
-									-iconf/pc-lint/gcc_x86_64 \
-									au-netrino.lnt \
-									options.lnt \
-									temp.lnt \
-									$(INCLUDES) \
-									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	@$(ECHO)
-
-.PHONY: misrac98
-misrac98: ##@analysis Lint static analysis for MISRA-C 1998 (pc-lint).
-misrac98: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
-								$(TMP_DIR)lint_cmac.h $(TMP_DIR)lint_cppmac.h
-ifndef WINE_EXISTS
-	$(error "Please install 'wine and pc-lint'!")
-endif
-	@$(ECHO)
-	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
-									-iconf/pc-lint/ \
-									-iconf/pc-lint/gcc_x86_64 \
-									au-misra1.lnt \
-									options.lnt \
-									temp.lnt \
-									$(INCLUDES) \
-									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	@$(ECHO)
-
-.PHONY: misrac04
-misrac04: ##@analysis Lint static analysis for MISRA-C 2004 (pc-lint).
-misrac04: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
-								$(TMP_DIR)lint_cmac.h $(TMP_DIR)lint_cppmac.h
-ifndef WINE_EXISTS
-	$(error "Please install 'wine and pc-lint'!")
-endif
-	@$(ECHO)
-	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
-									-iconf/pc-lint/ \
-									-iconf/pc-lint/gcc_x86_64 \
-									au-misra2.lnt \
-									options.lnt \
-									temp.lnt \
-									$(INCLUDES) \
-									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	@$(ECHO)
-
-.PHONY: misrac12
-misrac12: ##@analysis Lint static analysis for MISRA-C 2012 (pc-lint).
-misrac12: version $(TMP_DIR)gcc-include-path.lnt $(TMP_DIR)temp.lnt \
-								$(TMP_DIR)lint_cmac.h $(TMP_DIR)lint_cppmac.h
-ifndef WINE_EXISTS
-	$(error "Please install 'wine and pc-lint'!")
-endif
-	@$(ECHO)
-	@wine ~/opt/Pc-lint/lint-nt.exe -i$(TMP_DIR) \
-									-iconf/pc-lint/ \
-									-iconf/pc-lint/gcc_x86_64 \
-									au-misra3.lnt \
-									options.lnt \
-									temp.lnt \
-									$(INCLUDES) \
-									$(HOST_C_SRCs) | tr '\\\r' '/ '
-	@$(ECHO)
-
-$(TMP_DIR)lint_cmac.h:
-	$(BUILDING)
-	$(MKDIR_P)		$(dir $@)
-	$(RM_FR)		$(TMP_DIR)empty.c
-	$(TOUCH)		$(TMP_DIR)empty.c
-	@$(CC_HOST)		-E -dM $(TMP_DIR)empty.c >$@
-	$(RM_FR)		$(TMP_DIR)empty.c
-
-$(TMP_DIR)lint_cppmac.h:
-	$(BUILDING)
-	$(MKDIR_P)		$(dir $@)
-	$(RM_FR)		$(TMP_DIR)empty.cpp
-	$(TOUCH)		$(TMP_DIR)empty.cpp
-	@$(CXX_HOST)	-E -dM $(TMP_DIR)empty.cpp >$@
-	$(RM_FR)		$(TMP_DIR)empty.cpp
-
-$(TMP_DIR)gcc-include-path.lnt:
-	$(BUILDING)
-	$(MKDIR_P)		$(dir $@)
-	@./scripts/pclint_settings
-
-$(TMP_DIR)temp.lnt:
-	$(BUILDING)
-	$(MKDIR_P)		$(dir $@)
-	$(TOUCH)		$@
 
 .PHONY: valgrind
 valgrind: ##@analysis Valgrind dynamic analysis.
@@ -902,9 +797,9 @@ endif
 
 .PHONY: todo
 todo: ##@analysis Check for programmer notes in code.
-	@egrep			-nr -Rw --color 'bug|BUG|Bug' $(SRC_DIR) $(INC_DIR) || true
-	@egrep			-nr -Rw --color 'todo|TODO|Todo' $(SRC_DIR) $(INC_DIR) || true
-	@egrep			-nr -Rw --color 'test|TEST|Test' $(SRC_DIR) $(INC_DIR) || true
+	@egrep			-nr -Rw --color 'bug|BUG|Bug' $(SRC_DIR) $(INC_DIR)	port/ || true
+	@egrep			-nr -Rw --color 'todo|TODO|Todo' $(SRC_DIR) $(INC_DIR) port/ || true
+	@egrep			-nr -Rw --color 'test|TEST|Test' $(SRC_DIR) $(INC_DIR) port/ || true
 
 #..............................................................................#
 #	Run, serial, flash, erase, debug
@@ -926,7 +821,7 @@ serial: build
 	@sudo chmod		777 /dev/ttyACM0
 	clear
 	@picocom		-b 115200 --flow=none --echo --imap lfcrlf \
-												 --omap crlf /dev/ttyACM0
+					--omap crlf /dev/ttyACM0
 
 .PHONY: flash
 flash: ##@live Flashes the mcu.
@@ -967,36 +862,36 @@ debug_target: build
 
 .PHONY: show_flags
 show_flags:
-	@$(ECHO)			"Host"
-	@$(ECHO)			"PP :  $(HOST_CPPFLAGS)"
-	@$(ECHO)			"INC:  $(HOST_INCLUDES)"
-	@$(ECHO)			"DEP:  $(HOST_DEPFLAGS)"
-	@$(ECHO)			"C++:  $(HOST_CXXFLAGS)"
-	@$(ECHO)			"C  :  $(HOST_CFLAGS)"
-	@$(ECHO)			"ASM:  $(HOST_ASFLAGS)"
-	@$(ECHO)			"OBJ:  $(HOST_OBJ_MAIN) $(HOST_OBJS)"
-	@$(ECHO)			"Target"
-	@$(ECHO)			"PP :  $(TARGET_CPPFLAGS)"
-	@$(ECHO)			"INC:  $(TARGET_INCLUDES)"
-	@$(ECHO)			"DEP:  $(TARGET_DEPFLAGS)"
-	@$(ECHO)			"C++:  $(TARGET_CXXFLAGS)"
-	@$(ECHO)			"C  :  $(TARGET_CFLAGS)"
-	@$(ECHO)			"ASM:  $(TARGET_ASFLAGS)"
-	@$(ECHO)			"OBJ:  $(TARGET_OBJ_MAIN) $(TARGET_OBJS)"
-	@$(ECHO)			"Test"
-	@$(ECHO)			"PP :  $(TEST_CPPFLAGS)"
-	@$(ECHO)			"INC:  $(TEST_INCLUDES)"
-	@$(ECHO)			"DEP:  $(TEST_DEPFLAGS)"
-	@$(ECHO)			"C++:  $(TEST_CXXFLAGS)"
-	@$(ECHO)			"C  :  $(TEST_CFLAGS)"
-	@$(ECHO)			"ASM:  $(TEST_ASFLAGS)"
-	@$(ECHO)			"OBJ:  $(TEST_OBJS)"
+	@$(ECHO)		"Host"
+	@$(ECHO)		"PP :  $(HOST_CPPFLAGS)"
+	@$(ECHO)		"INC:  $(HOST_INCLUDES)"
+	@$(ECHO)		"DEP:  $(HOST_DEPFLAGS)"
+	@$(ECHO)		"C++:  $(HOST_CXXFLAGS)"
+	@$(ECHO)		"C  :  $(HOST_CFLAGS)"
+	@$(ECHO)		"ASM:  $(HOST_ASFLAGS)"
+	@$(ECHO)		"OBJ:  $(HOST_OBJ_MAIN) $(HOST_OBJS)"
+	@$(ECHO)		"Target"
+	@$(ECHO)		"PP :  $(TARGET_CPPFLAGS)"
+	@$(ECHO)		"INC:  $(TARGET_INCLUDES)"
+	@$(ECHO)		"DEP:  $(TARGET_DEPFLAGS)"
+	@$(ECHO)		"C++:  $(TARGET_CXXFLAGS)"
+	@$(ECHO)		"C  :  $(TARGET_CFLAGS)"
+	@$(ECHO)		"ASM:  $(TARGET_ASFLAGS)"
+	@$(ECHO)		"OBJ:  $(TARGET_OBJ_MAIN) $(TARGET_OBJS)"
+	@$(ECHO)		"Test"
+	@$(ECHO)		"PP :  $(TEST_CPPFLAGS)"
+	@$(ECHO)		"INC:  $(TEST_INCLUDES)"
+	@$(ECHO)		"DEP:  $(TEST_DEPFLAGS)"
+	@$(ECHO)		"C++:  $(TEST_CXXFLAGS)"
+	@$(ECHO)		"C  :  $(TEST_CFLAGS)"
+	@$(ECHO)		"ASM:  $(TEST_ASFLAGS)"
+	@$(ECHO)		"OBJ:  $(TEST_OBJS)"
 
 ################################################################################
-#	 _   _           _   
-#	| | | | ___  ___| |_ 
+#	 _   _           _
+#	| | | | ___  ___| |_
 #	| |_| |/ _ \/ __| __|
-#	|  _  | (_) \__ \ |_ 
+#	|  _  | (_) \__ \ |_
 #	|_| |_|\___/|___/\__|
 #
 
@@ -1019,13 +914,13 @@ $(BIN_DIR)$(HOST_DIR)$(EXEC): $(HOST_OBJ_MAIN) $(HOST_OBJS)
 $(BIN_DIR)$(HOST_DIR)%.hex: $(BIN_DIR)$(HOST_DIR)$(EXEC)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(HEX_HOST)	$< $@
+	@$(HEX_HOST)		$< $@
 
 # Create host bin program
 $(BIN_DIR)$(HOST_DIR)%.bin: $(BIN_DIR)$(HOST_DIR)$(EXEC)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(BIN_HOST)	$< $@
+	@$(BIN_HOST)		$< $@
 
 # Create host lib
 $(BIN_DIR)$(HOST_DIR)lib$(EXEC).a: $(HOST_OBJS)
@@ -1045,7 +940,7 @@ $(BIN_DIR)$(HOST_DIR)$(EXEC).size: $(BIN_DIR)$(HOST_DIR)$(EXEC).hex
 $(OBJ_DIR)$(HOST_DIR)%.o: %.cpp $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CXX_HOST)	$< -c $(HOST_CXXFLAGS) $(HOST_CPPFLAGS) $(HOST_INCLUDES) $(HOST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(HOST_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
+	@$(CXX_HOST)		$< -c $(HOST_CXXFLAGS) $(HOST_CPPFLAGS) $(HOST_INCLUDES) $(HOST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(HOST_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(HOST_DIR)$*.Td $(OBJ_DIR)$(HOST_DIR)$*.d && $(TOUCH) $@
 
 # Create object from C source code
@@ -1067,74 +962,74 @@ $(OBJ_DIR)$(HOST_DIR)%.o: %.s $(OBJ_DIR)$(HOST_DIR)%.d $(AUX)
 $(OBJ_DIR)$(HOST_DIR)%.d: ;
 
 ################################################################################
-#	 _____                    _   
-#	|_   _|_ _ _ __ __ _  ___| |_ 
+#	 _____                    _
+#	|_   _|_ _ _ __ __ _  ___| |_
 #	  | |/ _` | '__/ _` |/ _ \ __|
-#	  | | (_| | | | (_| |  __/ |_ 
+#	  | | (_| | | | (_| |  __/ |_
 #	  |_|\__,_|_|  \__, |\___|\__|
-#	               |___/         
+#	               |___/
 #
 
 .PHONY: target
 target: ##@build Builds the target.
-target:		version\
-			$(BIN_DIR)$(TARGET_DIR)$(EXEC).elf \
-			$(BIN_DIR)$(TARGET_DIR)$(EXEC).hex \
-			$(BIN_DIR)$(TARGET_DIR)$(EXEC).bin \
-			$(BIN_DIR)$(TARGET_DIR)lib$(EXEC).a \
-			$(BIN_DIR)$(TARGET_DIR)$(EXEC).size
+target:	version\
+		$(BIN_DIR)$(TARGET_DIR)$(EXEC).elf \
+		$(BIN_DIR)$(TARGET_DIR)$(EXEC).hex \
+		$(BIN_DIR)$(TARGET_DIR)$(EXEC).bin \
+		$(BIN_DIR)$(TARGET_DIR)lib$(EXEC).a \
+		$(BIN_DIR)$(TARGET_DIR)$(EXEC).size
 
 # Create target elf executable
 $(BIN_DIR)$(TARGET_DIR)$(EXEC).elf: $(TARGET_OBJ_MAIN) $(TARGET_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CC_TARGET)	$^ $(ARCHFLAGS) $(TARGET_LDFLAGS) -Wl,-Map=$(BIN_DIR)$(TARGET_DIR)$(EXEC).map,--cref -o $@
+	@$(CC_TARGET)		$^ $(ARCHFLAGS) $(TARGET_LDFLAGS) -Wl,-Map=$(BIN_DIR)$(TARGET_DIR)$(EXEC).map,--cref -o $@
 
 # Create target hex program
 $(BIN_DIR)$(TARGET_DIR)%.hex: $(BIN_DIR)$(TARGET_DIR)%.elf
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(HEX_TARGET)	$< $@
+	@$(HEX_TARGET)		$< $@
 
 # Create target bin program
 $(BIN_DIR)$(TARGET_DIR)%.bin: $(BIN_DIR)$(TARGET_DIR)%.elf
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(BIN_TARGET)	$< $@
+	@$(BIN_TARGET)		$< $@
 
 # Create target lib
 $(BIN_DIR)$(TARGET_DIR)lib$(EXEC).a: $(TARGET_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(AR_TARGET)	rcs $@ $<
+	@$(AR_TARGET)		rcs $@ $<
 
 # Size the generated program
 $(BIN_DIR)$(TARGET_DIR)$(EXEC).size: $(BIN_DIR)$(TARGET_DIR)$(EXEC).hex
 	@$(ECHO)
-	@$(SZ_TARGET)	$^ | sed 's/^/\t/'
+	@$(SZ_TARGET)		$^ | sed 's/^/\t/'
 	$(MKDIR_P)		$(dir $@)
-	@$(SZ_TARGET)	$^ --format=sysv 1>$@
+	@$(SZ_TARGET)		$^ --format=sysv 1>$@
 	@$(ECHO)
 
 # Create target object from C++ source code
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.cpp $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CXX_TARGET)	$< -c $(TARGET_CXXFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
+	@$(CXX_TARGET)		$< -c $(TARGET_CXXFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
 
 # Create target object from C source code
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.c $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CC_TARGET)	$< -c $(TARGET_CFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.c=.lst)) -o $@
+	@$(CC_TARGET)		$< -c $(TARGET_CFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TARGET_DIR)$<)$(notdir $(<:.c=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
 
 # Create target object from Assembly source code
 $(OBJ_DIR)$(TARGET_DIR)%.o: %.s $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(AS_TARGET)	$< -c $(TARGET_ASFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -o $@
+	@$(AS_TARGET)		$< -c $(TARGET_ASFLAGS) $(ARCHFLAGS) $(TARGET_CPPFLAGS) $(TARGET_INCLUDES) $(TARGET_DEPFLAGS) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TARGET_DIR)$*.Td $(OBJ_DIR)$(TARGET_DIR)$*.d && $(TOUCH) $@
 
 # Manage auto-depedencies
@@ -1142,12 +1037,12 @@ $(OBJ_DIR)$(TARGET_DIR)%.o: %.s $(OBJ_DIR)$(TARGET_DIR)%.d $(AUX)
 $(OBJ_DIR)$(TARGET_DIR)%.d: ;
 
 ################################################################################
-#	 _____         _       
-#	|_   _|__  ___| |_ ___ 
+#	 _____         _
+#	|_   _|__  ___| |_ ___
 #	  | |/ _ \/ __| __/ __|
 #	  | |  __/\__ \ |_\__ \
 #	  |_|\___||___/\__|___/
-#	                       
+#
 #
 
 .PHONY: tests
@@ -1159,13 +1054,13 @@ tests:		version\
 $(BIN_DIR)$(HOST_DIR)$(EXEC)_runTests: $(TEST_OBJS)
 	$(BUILDING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CXX_HOST)	$^ $(TEST_LDFLAGS) -o $@
+	@$(CXX_HOST)		$^ $(TEST_LDFLAGS) -o $@
 
 # Create test object from C++ source code
 $(OBJ_DIR)$(TESTS_DIR)%.o: %.cpp $(OBJ_DIR)$(TESTS_DIR)%.d $(AUX)
 	$(COMPILING)
 	$(MKDIR_P)		$(dir $@)
-	@$(CXX_HOST)	$< -c $(TEST_CXXFLAGS) $(TEST_CPPFLAGS) $(TEST_INCLUDES) $(TEST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TESTS_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
+	@$(CXX_HOST)		$< -c $(TEST_CXXFLAGS) $(TEST_CPPFLAGS) $(TEST_INCLUDES) $(TEST_DEPFLAGS) -Wa,-a,-ad,-alms=$(dir $(OBJ_DIR)$(TESTS_DIR)$<)$(notdir $(<:.cpp=.lst)) -o $@
 	$(MV_F)			$(OBJ_DIR)$(TESTS_DIR)$*.Td $(OBJ_DIR)$(TESTS_DIR)$*.d && $(TOUCH) $@
 
 # Create test object from C source code
