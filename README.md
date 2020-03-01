@@ -9,8 +9,15 @@
 > GNU Make makefile for cross-compile and Test driven development in C for
 > dual-targeted environments
 
-Uses the **STM32F072RB** micro-controller from ST but it can adapt to any 
+Uses the **STM32F072RB** micro-controller from ST but it can adapt to any
 embedded platform.
+
+### WARNING
+
+I designed a better makefile based build system and in the next weeks/months it will be integrated here.
+This means that the current functionality will change after the update happens.
+
+Hint: The main change will be the use of python scripts to abstract tools such as linting, flashing, etc from the main functionality of the build system that is to compile and link.
 
 ### Goals
 
@@ -70,13 +77,13 @@ Optional:
 1. Segger JLink drivers
 2. Saleae logic analyser
 3. picocom
-4. chromium-browser
+4. firefox
 
 ```sh
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install picocom
-sudo apt-get install chromium-browser
+sudo apt-get install firefox
 ```
 
 ### How to use
@@ -92,13 +99,6 @@ Build host, target and tests:
 ```sh
 make all
 ```
-
-Eclipse:
-
-1. Create 'proj/eclipse_workspace' folder if does not exist in project root.
-1. Open Eclipse with **proj/eclipse_workspace** as the workspace.
-2. Import existing project in the solution.
-3. Start developing...
 
 ### Maintainer
 
