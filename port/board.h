@@ -33,13 +33,20 @@ extern "C"
 #endif
 
 /******************************************************************************
+	Include files
+******************************************************************************/
+
+#include <stdint.h>
+
+/******************************************************************************
 	Function declarations
 ******************************************************************************/
 
-const char* getBoardName( void );
-void		bsp_setup_led( void );
-void		bsp_led_on( void );
-void		bsp_led_off( void );
+const char *getBoardName( void );
+void       bsp_setup_led( void );
+void       bsp_led_on( void );
+void       bsp_led_off( void );
+void       bsp_delay( const uint32_t num );
 
 #ifdef __cplusplus
 }

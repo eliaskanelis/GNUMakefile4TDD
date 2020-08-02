@@ -20,7 +20,7 @@
  *
  * \return					The board's name.
  */
-const char* getBoardName( void )
+const char *getBoardName( void )
 {
 	return "GNU/Linux PC";
 }
@@ -42,7 +42,8 @@ void bsp_led_off( void )
 
 void bsp_delay( const uint32_t num )
 {
-	#if 0
-		printf( "Delay...\n" );
-	#endif
+	( void )num;
+#if 0
+	printf( "Delay...\n" );
+#endif
 }
