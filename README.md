@@ -33,6 +33,7 @@ All of these are satisfied but need improvement.
 8. Color output
 9. Support C/C++ and assembly.
 10. Auto-dependency in build rules.
+11. Automatic dev tool setup (Conan)
 
 ### Dependencies
 
