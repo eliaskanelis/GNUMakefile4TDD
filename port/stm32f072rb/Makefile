@@ -28,8 +28,8 @@ LDFLAGS  += -lm
 #.................................................
 #    ARCH
 
-CPPFLAGS+=-mcpu=cortex-m0\
-          -mthumb
+CPPFLAGS += -mcpu=cortex-m0\
+            -mthumb
 
 #.................................................
 #    TODO
@@ -75,7 +75,7 @@ remoteDebug:
 
 
 .PHONY: run
-run: flash
+run:
 	@uart -d /dev/ttyACM0 -s 115200
 
 

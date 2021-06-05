@@ -38,24 +38,24 @@ git log -1 --pretty=format:\
 /**
 * \file version.h
 *
-* \brief	This file is generated automatically from script and keeps track
-*			of version control.
+* \brief        This file is generated automatically from script and keeps track
+*               of version control.
 *
-* \author	Ilias Kanelis	hkanelhs@yahoo.gr
+* \author       Ilias Kanelis    hkanelhs@yahoo.gr
 */
 
 /**
-* \defgroup	Version	Version
+* \defgroup     Version       Version
 *
-* \code	#include <version.h>	@endcode
+* \code         #include <version.h> @endcode
 */
 
 /*******************************************************************************
 	Code
 *******************************************************************************/
 
-#ifndef VERSION_H_ONLY_ONE_INCLUDE_SAFETY
-#define VERSION_H_ONLY_ONE_INCLUDE_SAFETY
+#ifndef VERSION_H_INCLUDED
+#define VERSION_H_INCLUDED
 
 /*******************************************************************************
 	Custom definitions
@@ -64,79 +64,79 @@ git log -1 --pretty=format:\
 /**
  * Raw git version.
  */
-#define GIT_RAW_VERSION					"'$GIT_RAW_VERSION'"
+#define GIT_RAW_VERSION                                 "'$GIT_RAW_VERSION'"
 
 /**
  * Version of the project.
  */
-#define VERSION							"'$VERSION'"
+#define VERSION                                         "'$VERSION'"
 
 /**
  * Major version from git tag.
  */
-#define MAJOR							"'$MAJOR'"
+#define MAJOR                                           "'$MAJOR'"
 
 /**
  * Minor version from git tag
  */
-#define MINOR							"'$MINOR'"
+#define MINOR                                           "'$MINOR'"
 
 /**
  * Commit number since last tag.
  */
-#define PATCH							"'$PATCH'"
+#define PATCH                                           "'$PATCH'"
 
 /**
  * Git current number of commits for the given branch.
  */
-#define TOTAL_NUM_COMMITS				"'$TOTAL_NUM_COMMITS'"
+#define TOTAL_NUM_COMMITS                               "'$TOTAL_NUM_COMMITS'"
 
 /**
  * Current git branch.
  */
-#define BRANCH							"'$BRANCH'"
+#define BRANCH                                          "'$BRANCH'"
 
 /**
  * How many commits away of master branch.
  */
-#define AHEAD_BY_MASTER					"'$AHEAD_BY_MASTER'"
+#define AHEAD_BY_MASTER                                 "'$AHEAD_BY_MASTER'"
 
 /**
  * How many untracked git files.
  */
-#define TOTAL_NUM_UNTRACKED				"'$TOTAL_NUM_UNTRACKED'"
+#define TOTAL_NUM_UNTRACKED                             "'$TOTAL_NUM_UNTRACKED'"
 
 /**
  * Latest git commit hash.
  */
-#define COMMIT_HASH						"'$COMMIT_HASH'"
+#define COMMIT_HASH                                     "'$COMMIT_HASH'"
 
 /**
  * Latest git commit timestamp.
  */
-#define COMMIT_TIMESTAMP				"%ci"
+#define COMMIT_TIMESTAMP                                "%ci"
 
 /**
  * Latest git commit date( Yy-Mm-Dd ).
  */
-#define COMMIT_DATE						"'${COMMIT_DATE}'"
+#define COMMIT_DATE                                     "'${COMMIT_DATE}'"
 
 /**
  * Latest git commit time( Hh:Mm:Ss ).
  */
-#define COMMIT_TIME						"'${COMMIT_TIME}'"
+#define COMMIT_TIME                                     "'${COMMIT_TIME}'"
 
 /**
  * Latest git commit timezone.
  */
-#define COMMIT_TIMEZONE					"'${COMMIT_TIMEZONE}'"
+#define COMMIT_TIMEZONE                                 "'${COMMIT_TIMEZONE}'"
 
 /**
  * Latest git commit comment.
  */
-#define COMMIT_COMMENT					"%s"
+#define COMMIT_COMMENT                                  "%s"
 
-#endif /* VERSION_H_ONLY_ONE_INCLUDE_SAFETY */
+#endif /* VERSION_H_INCLUDED */
 ' --date=short --abbrev-commit > ${GITV_H_TMP} 2> /dev/null
 
 # Replace the file only when the new file is different
@@ -150,4 +150,3 @@ fi
 
 #Remove temporary file
 rm -rf ${GITV_H_TMP}
-

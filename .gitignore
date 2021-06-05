@@ -1,11 +1,15 @@
 # Executables
 *.elf
+*.bin
+*.hex
 *.exe
-*.out
 
-# Object files
+# Generated files
 *.o
-*.obj
+*.lst
+*.map
+*.d
+*.Td
 
 # Auto-generated files
 version.h

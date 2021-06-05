@@ -1,6 +1,6 @@
 ### GNU Makefile project for cross-compile and TDD in C
 
-[![Build Status](https://travis-ci.org/TediCreations/GNUMakefile4TDD.svg?branch=master)](https://travis-ci.org/TediCreations/GNUMakefile4TDD)
+[![Build Status](https://travis-ci.org/TediCreations/GNUMakefile4TDD.svg?branch=dev)](https://travis-ci.org/TediCreations/GNUMakefile4TDD)
 
 *SOS: Someone please help me set Travis CI correctly...*
 
@@ -23,8 +23,8 @@ Hint: The main change will be the use of python scripts to abstract tools such a
 
 All of these are satisfied but need improvement.
 
-1. Test driven development (cppUtest)
-2. Multi-architecture Build (GNU/Linux & micro-controller)
+1. ~~Test driven development (cppUtest)~~
+2. ~~Multi-architecture Build (GNU/Linux & micro-controller)~~
 3. Lint (pc-lint)
 4. Documentation generation (doxygen)
 5. Flash, erase etc. micro-controller

@@ -24,7 +24,7 @@ NM  = nm
 #
 
 # Compiler errors and warnings
-CPPFLAGS += -Werror -Wall -pedantic-errors -Wshadow -Wextra
+CPPFLAGS += -w -Werror -Wall -pedantic-errors -Wshadow -Wextra
 
 # C language specification
 CFLAGS   += -std=c99
@@ -33,13 +33,10 @@ CFLAGS   += -std=c99
 CXXFLAGS += -std=c++98
 
 # Autodependency
-ASFLAGS  += -MT $@ -MMD -MP -MF $(@:%.o=%.Td)
-CFLAGS   += -MT $@ -MMD -MP -MF $(@:%.o=%.Td)
-CXXFLAGS += -MT $@ -MMD -MP -MF $(@:%.o=%.Td)
+CPPFLAGS += -MT $@ -MMD -MP -MF $(@:%.o=%.Td)
 
 # Generate listing
-CFLAGS   += -Wa,-a,-ad,-alms=$(@:%.o=%.lst)
-CXXFLAGS += -Wa,-a,-ad,-alms=$(@:%.o=%.lst)
+CPPFLAGS += -Wa,-a,-ad,-alms=$(@:%.o=%.lst)
 
 # Debug/Release flags
 ifeq ($(TARGET),dbg)

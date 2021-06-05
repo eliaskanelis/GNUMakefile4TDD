@@ -67,20 +67,6 @@
 #                print "\n"; \
 #        }
 
-#TEST_CXXFLAGS =          -I"$(CPPUTEST_DIR)/include/"\
-#                         -I"$(CPPUTEST_DIR)/include/CppUTest/MemoryLeakDetectorNewMacros.h"
-
-#TEST_LDFLAGS =           -L"$(CPPUTEST_DIR)/cpputest_build/lib/"\
-#                         -lCppUTest\
-#                         -lCppUTestExt
-
-#.PHONY: runTests
-#runTests: ##@tests Run all tests.
-#runTests: $(BIN_DIR)$(HOST_DIR)$(EXEC)_runTests
-#	@$(ECHO)
-#	@./$< -c | $(SED) 's/^/\t/'
-
-
 #.PHONY: help
 #help: ##@options Shows a list of all available make options.
 #ifndef PERL_EXISTS
@@ -234,10 +220,10 @@ endif
 #    Detect and validate ports (PORT_NAME)
 
 AVAILABLE_PORTS   := $(sort $(patsubst port/%/,%,$(dir $(wildcard port/*/.))))
-PORT_NAME_ISVALID := $(findstring $(PORT_NAME),$(AVAILABLE_PORTS))
 
 # Validate PORT_NAME
 ifdef PORT_NAME
+  PORT_NAME_ISVALID := $(findstring $(PORT_NAME),$(AVAILABLE_PORTS))
   ifndef PORT_NAME_ISVALID
     $(error '$(PORT_NAME)' is an invalid port name)
   endif
@@ -259,6 +245,7 @@ TEE      := tee
 XARGS_R0 := xargs -r -0
 TPUT     := tput
 GTAGS    := gtags
+SED      := sed
 
 ################################################################################
 #    Default toolchain
@@ -277,7 +264,6 @@ ASFLAGS  =
 CFLAGS   =
 CXXFLAGS =
 LDFLAGS  =
-
 
 ################################################################################
 #    Colors
@@ -313,6 +299,20 @@ else
   WHITE  := '\033[0;37m'
 endif
 
+
+#.................................................
+#    Notify user
+
+ifndef PORT_NAME
+define notify
+    @$(ECHO_NE) $(BLACK)"[$(PROJ_NAME)] "$(BLUE)"$(1)"$(RESET)"$(2) "
+endef
+else
+define notify
+    @$(ECHO_NE) $(BLACK)"[$(PORT_NAME)] "$(BLUE)"$(1)"$(RESET)"$(2) "
+endef
+endif
+
 ################################################################################
 #    Files
 #
@@ -346,19 +346,23 @@ C_SRCs   := $(sort $(C_SRCs))
 CXX_SRCs := $(sort $(CXX_SRCs))
 
 #.................................................
-#    Source
+#    Output dir
 
 ifdef PORT_NAME
-  ifdef TARGET
-    BIN_OUTDIR := bin/$(PORT_NAME)/$(TARGET)/
-    OBJ_OUTDIR := obj/$(PORT_NAME)/$(TARGET)/
+
+ifdef TARGET
+    BIN_OUTDIR  := bin/$(PORT_NAME)/$(TARGET)/
+    OBJ_OUTDIR  := tmp/$(PORT_NAME)/$(TARGET)/obj/
+    TEST_OUTDIR := tmp/$(PORT_NAME)/$(TARGET)/test/
   else
-    BIN_OUTDIR := bin/$(PORT_NAME)/
-    OBJ_OUTDIR := obj/$(PORT_NAME)/
+    BIN_OUTDIR  := bin/$(PORT_NAME)/
+    OBJ_OUTDIR  := tmp/$(PORT_NAME)/obj/
+    TEST_OUTDIR := tmp/$(PORT_NAME)/test/
   endif
 else
-  BIN_OUTDIR   := bin/
-  OBJ_OUTDIR   := obj/
+  BIN_OUTDIR    := bin/
+  OBJ_OUTDIR    := tmp/obj/
+  TEST_OUTDIR   := tmp/test/
 endif
 
 OBJS=  $(sort $(AS_SRCs:%.s=$(OBJ_OUTDIR)%.o))
@@ -370,6 +374,7 @@ OBJS+= $(sort $(CXX_SRCs:%.cpp=$(OBJ_OUTDIR)%.o))
 #    Includes
 
 CPPFLAGS+=-Iinc/
+CPPFLAGS+=-Isrc/
 
 ifdef PORT_NAME
   CPPFLAGS+=-Iport/
@@ -404,14 +409,14 @@ all: build
 
 .PHONY: version
 version:
-	@$(ECHO_NE) $(BLUE)"Version "$(RESET)
+	$(call notify,"Version ","")
 	@./scripts/get_version.sh 1>/dev/null
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
 
 .PHONY: tags
 tags:
-	@$(ECHO_NE) $(BLUE)"GTAGS "$(RESET)
+	$(call notify,"Gtags ","")
 #	@$(GTAGS) -c --gtagslabel=new-ctags -i
 #	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 	@$(ECHO_E) $(YELLOW)"Disabled"$(RESET)
@@ -436,8 +441,8 @@ build: check\
        $(BIN_OUTDIR)$(PROJ_NAME).bin\
        $(BIN_OUTDIR)$(PROJ_NAME).hex\
        $(BIN_OUTDIR)$(PROJ_NAME).sym\
-       $(BIN_OUTDIR)$(PROJ_NAME).size
-
+       $(BIN_OUTDIR)$(PROJ_NAME).size\
+       runTests
 
 .PHONY: clean
 clean:
@@ -446,7 +451,7 @@ clean:
 	@$(RM_RF) GRTAGS
 #	py3clean .
 	@$(RM_RF) bin
-	@$(RM_RF) obj
+	@$(RM_RF) tmp
 	@$(ECHO) "Cleaned project"
 
 
@@ -467,11 +472,11 @@ info:
 	  do \
 	    echo "    $$i"; \
 	  done
-#	@$(ECHO_E) $(BLUE)"OBJS:"$(RESET)
-#	for i in $(OBJS) ; \
-#	  do \
-#	    echo "    $$i"; \
-#	  done
+	@$(ECHO_E) $(BLUE)"OBJS:"$(RESET)
+	for i in $(OBJS) ; \
+	  do \
+	    echo "    $$i"; \
+	  done
 	@$(ECHO) ""
 	@$(ECHO_E) $(BLUE)"AS:  "$(RESET)$(COMPILE.AS)
 	@$(ECHO_E) $(BLUE)"CC:  "$(RESET)$(COMPILE.CC)
@@ -504,7 +509,7 @@ RUN_GTAGS =
 
 # Compile assembly
 $(OBJ_OUTDIR)%.o: %.s $(AUX)
-	@$(ECHO_NE) $(BLUE)"AS  "$(RESET)"$< "
+	$(call notify,"AS  ","$<")
 	@$(MKDIR_P) $(dir $@)
 	$(RUN_DOS2UNIX)
 	@$(COMPILE.AS) 2>&1 | $(TEE) $(@:%.o=%.err) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
@@ -515,7 +520,7 @@ $(OBJ_OUTDIR)%.o: %.s $(AUX)
 
 # Compile C
 $(OBJ_OUTDIR)%.o: %.c $(OBJ_OUTDIR)%.d $(AUX)
-	@$(ECHO_NE) $(BLUE)"CC  "$(RESET)"$< "
+	$(call notify,"CC  ","$<")
 	@$(MKDIR_P) $(dir $@)
 	$(RUN_DOS2UNIX)
 	$(RUN_ASTYLE)
@@ -527,7 +532,7 @@ $(OBJ_OUTDIR)%.o: %.c $(OBJ_OUTDIR)%.d $(AUX)
 
 # Compile C++
 $(OBJ_OUTDIR)%.o: %.cpp $(OBJ_OUTDIR)%.d $(AUX)
-	@$(ECHO_NE) $(BLUE)"CXX "$(RESET)"$< "
+	$(call notify,"CXX ","$<")
 	@$(MKDIR_P) $(dir $@)
 	$(RUN_DOS2UNIX)
 	$(RUN_ASTYLE)
@@ -539,7 +544,7 @@ $(OBJ_OUTDIR)%.o: %.cpp $(OBJ_OUTDIR)%.d $(AUX)
 
 # Link
 $(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
-	@$(ECHO_NE) $(BLUE)"LD  "$(RESET)"$@ "
+	$(call notify,"LD  ","$@")
 	@$(MKDIR_P) $(dir $@)
 	@$(LINK) 2>&1 | $(TEE) $(@:%.o=%.err) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
@@ -547,7 +552,7 @@ $(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
 
 # Bin
 %.bin: %.elf
-	@$(ECHO_NE) $(BLUE)"BIN "$(RESET)"$@ "
+	$(call notify,"BIN ","$@")
 	@$(MKDIR_P) $(dir $@)
 	@$(OC) -O binary -S $< $@
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
@@ -555,7 +560,7 @@ $(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
 
 # Hex
 %.hex: %.elf
-	@$(ECHO_NE) $(BLUE)"HEX "$(RESET)"$@ "
+	$(call notify,"HEX ","$@")
 	@$(MKDIR_P) $(dir $@)
 	@$(OC) -O ihex $< $@
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
@@ -563,7 +568,7 @@ $(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
 
 # Symbols
 %.sym: %.elf
-	@$(ECHO_NE) $(BLUE)"NM  "$(RESET)"$@ "
+	$(call notify,"NM  ","$@")
 	@$(MKDIR_P) $(dir $@)
 	@$(NM) -n $< > $@
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
@@ -571,23 +576,41 @@ $(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
 
 # Size
 %.size: %.elf
-	@$(ECHO_NE) $(BLUE)"SZ  "$(RESET)"$@ "
+	$(call notify,"SZ  ","$@")
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 	@$(SZ) $^ --format=sysv 1>$@
 	@$(ECHO) ""
 	@$(SZ) $^
 	@$(ECHO) ""
 
+################################################################################
+#    Unit tests
+#
+
+.PHONY: runTests
+runTests:
+ifdef PORT_NAME
+	@$(MAKE) PORT_NAME=posix --no-print-directory -f tests.mk runCppUtest
+else
+	@$(MAKE) --no-print-directory -f tests.mk runCppUtest
+endif
 
 ################################################################################
 #    Auto-depedencies
 #
+
+# We only enable the autodependencies on non recursive calls
+# because the tests.mk is including this Makefile on the start.
+ifeq (0,${MAKELEVEL})
 
 # Manage auto-depedencies( this must be at the end )
 DEPS=$(OBJS:%.o=%.d)
 
 .PRECIOUS: $(DEPS)
 $(DEPS): $(AUX)
-#	@$(ECHO_E) $(BLUE)"D   "$(RESET)"$@ "
+#	$(call notify,"D   ","$@")
+#	@$(ECHO) ""
 
 -include $(DEPS)
+
+endif
