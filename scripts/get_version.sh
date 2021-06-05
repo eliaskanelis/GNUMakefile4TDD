@@ -7,13 +7,12 @@ GITV_H=inc/version.h
 GITV_H_TMP=inc/version.h.tmp
 mkdir -p "inc"
 
-
 if git tag > /dev/null 2>&1 && [ $? -eq 0 ]; then
     # Repository exists
     GIT_RAW_VERSION=$(git describe --always --dirty --long --tags)
     TOTAL_NUM_COMMITS=$(git rev-list --count HEAD)
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    AHEAD_BY_MASTER=$(git log --oneline master..${BRANCH} | wc -l | bc)
+    AHEAD_BY_MASTER=$(git log --oneline master -- "${BRANCH}" | wc -l | bc)
     TOTAL_NUM_UNTRACKED=$(git ls-files --exclude-standard --others --full-name -- . | wc -l | bc)
     COMMIT_HASH=$(git rev-parse --short --verify HEAD)
 
