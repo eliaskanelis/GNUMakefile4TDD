@@ -7,30 +7,53 @@ GITV_H=inc/version.h
 GITV_H_TMP=inc/version.h.tmp
 mkdir -p "inc"
 
-GIT_RAW_VERSION=$(git describe --always --dirty --long --tags)
-TOTAL_NUM_COMMITS=$(git rev-list --count HEAD)
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-AHEAD_BY_MASTER=$(git log --oneline master..${BRANCH} | wc -l | bc)
-TOTAL_NUM_UNTRACKED=$(git ls-files --exclude-standard --others --full-name -- . | wc -l | bc)
-COMMIT_HASH=$(git rev-parse --short --verify HEAD)
 
-IFS='-' read -r -a git_raw_version <<< "$GIT_RAW_VERSION"
-IFS='v' read -r -a tag <<< "${git_raw_version[0]}"
-IFS='.' read -r -a major_minor <<< "${tag[1]}"
+if git tag > /dev/null 2>&1 && [ $? -eq 0 ]; then
+    # Repository exists
+    GIT_RAW_VERSION=$(git describe --always --dirty --long --tags)
+    TOTAL_NUM_COMMITS=$(git rev-list --count HEAD)
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    AHEAD_BY_MASTER=$(git log --oneline master..${BRANCH} | wc -l | bc)
+    TOTAL_NUM_UNTRACKED=$(git ls-files --exclude-standard --others --full-name -- . | wc -l | bc)
+    COMMIT_HASH=$(git rev-parse --short --verify HEAD)
 
-MAJOR=${major_minor[0]}
-MINOR=${major_minor[1]}
-PATCH=${git_raw_version[1]}
-VERSION="$MAJOR.$MINOR.$PATCH"
+    IFS='-' read -r -a git_raw_version <<< "$GIT_RAW_VERSION"
+    IFS='v' read -r -a tag <<< "${git_raw_version[0]}"
+    IFS='.' read -r -a major_minor <<< "${tag[1]}"
 
-GIT_TIMESTAMP=$(git log -1 --pretty=format:'%ci' --date=short --abbrev-commit)
-IFS=' ' read -r -a timestamp <<< "${GIT_TIMESTAMP}"
-COMMIT_DATE=${timestamp[0]}
-COMMIT_TIME=${timestamp[1]}
-COMMIT_TIMEZONE=${timestamp[2]}
+    MAJOR=${major_minor[0]}
+    MINOR=${major_minor[1]}
+    PATCH=${git_raw_version[1]}
+    VERSION="$MAJOR.$MINOR.$PATCH"
+
+    GIT_TIMESTAMP=$(git log -1 --pretty=format:'%ci' --date=short --abbrev-commit)
+    IFS=' ' read -r -a timestamp <<< "${GIT_TIMESTAMP}"
+    COMMIT_DATE=${timestamp[0]}
+    COMMIT_TIME=${timestamp[1]}
+    COMMIT_TIMEZONE=${timestamp[2]}
+    COMMIT_TIMESTAMP=$(git log -1 --pretty=format:'%ci' --date=short --abbrev-commit)
+    COMMIT_COMMENT=$(git log -1 --pretty=format:'%s' --date=short --abbrev-commit)
+else
+    # No repository here
+    GIT_RAW_VERSION=""
+    VERSION=""
+    MAJOR=""
+    MINOR=""
+    PATCH=""
+    TOTAL_NUM_COMMITS=""
+    BRANCH=""
+    AHEAD_BY_MASTER=""
+    TOTAL_NUM_UNTRACKED=""
+    COMMIT_HASH=""
+    COMMIT_TIMESTAMP=""
+    COMMIT_DATE=""
+    COMMIT_TIME=""
+    COMMIT_TIMEZONE=""
+    COMMIT_COMMENT=""
+fi
 
 #Generate temporary header file
-git log -1 --pretty=format:\
+echo \
 '/*******************************************************************************
 	About
 *******************************************************************************/
@@ -64,57 +87,57 @@ git log -1 --pretty=format:\
 /**
  * Raw git version.
  */
-#define GIT_RAW_VERSION                                 "'$GIT_RAW_VERSION'"
+#define GIT_RAW_VERSION                                 "'${GIT_RAW_VERSION}'"
 
 /**
  * Version of the project.
  */
-#define VERSION                                         "'$VERSION'"
+#define VERSION                                         "'${VERSION}'"
 
 /**
  * Major version from git tag.
  */
-#define MAJOR                                           "'$MAJOR'"
+#define MAJOR                                           "'${MAJOR}'"
 
 /**
  * Minor version from git tag
  */
-#define MINOR                                           "'$MINOR'"
+#define MINOR                                           "'${MINOR}'"
 
 /**
  * Commit number since last tag.
  */
-#define PATCH                                           "'$PATCH'"
+#define PATCH                                           "'${PATCH}'"
 
 /**
  * Git current number of commits for the given branch.
  */
-#define TOTAL_NUM_COMMITS                               "'$TOTAL_NUM_COMMITS'"
+#define TOTAL_NUM_COMMITS                               "'${TOTAL_NUM_COMMITS}'"
 
 /**
  * Current git branch.
  */
-#define BRANCH                                          "'$BRANCH'"
+#define BRANCH                                          "'${BRANCH}'"
 
 /**
  * How many commits away of master branch.
  */
-#define AHEAD_BY_MASTER                                 "'$AHEAD_BY_MASTER'"
+#define AHEAD_BY_MASTER                                 "'${AHEAD_BY_MASTER}'"
 
 /**
  * How many untracked git files.
  */
-#define TOTAL_NUM_UNTRACKED                             "'$TOTAL_NUM_UNTRACKED'"
+#define TOTAL_NUM_UNTRACKED                             "'${TOTAL_NUM_UNTRACKED}'"
 
 /**
  * Latest git commit hash.
  */
-#define COMMIT_HASH                                     "'$COMMIT_HASH'"
+#define COMMIT_HASH                                     "'${COMMIT_HASH}'"
 
 /**
  * Latest git commit timestamp.
  */
-#define COMMIT_TIMESTAMP                                "%ci"
+#define COMMIT_TIMESTAMP                                "'${COMMIT_TIMESTAMP}'"
 
 /**
  * Latest git commit date( Yy-Mm-Dd ).
@@ -134,10 +157,10 @@ git log -1 --pretty=format:\
 /**
  * Latest git commit comment.
  */
-#define COMMIT_COMMENT                                  "%s"
+#define COMMIT_COMMENT                                  "'${COMMIT_COMMENT}'"
 
 #endif /* VERSION_H_INCLUDED */
-' --date=short --abbrev-commit > ${GITV_H_TMP} 2> /dev/null
+' > ${GITV_H_TMP} 2> /dev/null
 
 # Replace the file only when the new file is different
 if [ ! -f ${GITV_H} ]; then
