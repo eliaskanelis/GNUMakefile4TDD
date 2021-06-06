@@ -51,10 +51,10 @@ TEST_CFLAGS     =
 TEST_CXXFLAGS   =
 TEST_LDFLAGS    =
 
-TEST_CPPFLAGS  += -I"$(CPPUTEST_DIR)/include/"\
-                  -I"$(CPPUTEST_DIR)/include/CppUTest/MemoryLeakDetectorNewMacros.h"
+TEST_CPPFLAGS  += -I"$(CPPUTEST_DIR)include/"\
+                  -I"$(CPPUTEST_DIR)include/CppUTest/MemoryLeakDetectorNewMacros.h"
 
-TEST_LDFLAGS   += -L"$(CPPUTEST_DIR)/cpputest_build/lib/"\
+TEST_LDFLAGS   += -L"$(CPPUTEST_DIR)cpputest_build/lib/"\
                   -lCppUTest\
                   -lCppUTestExt
 
