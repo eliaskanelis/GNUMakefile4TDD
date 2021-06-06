@@ -10,10 +10,3 @@ SZ  = size
 OC  = objcopy
 NM  = nm
 
-################################################################################
-#    Rules
-#
-
-.PHONY: run
-run: $(BIN_OUTDIR)$(PROJ_NAME).elf
-	@./$< || true;

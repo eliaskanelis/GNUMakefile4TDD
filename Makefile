@@ -242,10 +242,13 @@ MKDIR_P  := mkdir -p
 MV_F     := mv -f
 TOUCH    := touch
 TEE      := tee
+TEE_A    := tee -a
 XARGS_R0 := xargs -r -0
 TPUT     := tput
 GTAGS    := gtags
 SED      := sed
+RLWRAP   :=rlwrap -I -R -a -A --no-warnings
+CAT      :=cat
 
 ################################################################################
 #    Default toolchain
@@ -396,16 +399,47 @@ COMPILE.CXX ?= $(CXX) -c $< -o $@ $(CPPFLAGS) $(CXXFLAGS)
 LINK        ?= $(LD)     $^ -o $@ $(CPPFLAGS) $(LDFLAGS)
 
 ################################################################################
-#    Rules
+#    Functions
 #
 
-#.................................................
-#    STM32 HAL drivers
+RUN_DOS2UNIX =
+#define RUN_DOS2UNIX =
+#	@dos2unix -k $< 2> /dev/null
+#endef
+
+RUN_ASTYLE =
+#define RUN_ASTYLE =
+#	@astyle -q $<
+#endef
+
+RUN_GTAGS =
+#define RUN_GTAGS =
+#	@$(MKDIR_P) $(OBJ_OUTDIR)tags/
+#	@$(GTAGS) -c --gtagslabel=new-ctags -i --single-update $< $(OBJ_OUTDIR)tags
+#endef
+
+define runApp
+  ./$(BIN_OUTDIR)$(PROJ_NAME).elf
+endef
+
+# Function to calculate the size of the elf
+define sizeElf
+  @$(SZ) "$(1)" > "$(2)"
+endef
+
+
+################################################################################
+#    Rules
+#
 
 .PHONY: all
 all: build
 	@$(ECHO_E) $(GREEN)"Build finished succesfully"$(RESET)
 
+.PHONY: size
+size: $(BIN_OUTDIR)$(PROJ_NAME).size
+	@$(CAT) $<
+	@$(ECHO)
 
 .PHONY: version
 version:
@@ -413,14 +447,12 @@ version:
 	@./scripts/get_version.sh 1>/dev/null
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
-
 .PHONY: tags
 tags:
 	$(call notify,"Gtags ","")
 #	@$(GTAGS) -c --gtagslabel=new-ctags -i
 #	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 	@$(ECHO_E) $(YELLOW)"Disabled"$(RESET)
-
 
 .PHONY: check
 check:
@@ -442,18 +474,18 @@ build: check\
        $(BIN_OUTDIR)$(PROJ_NAME).hex\
        $(BIN_OUTDIR)$(PROJ_NAME).sym\
        $(BIN_OUTDIR)$(PROJ_NAME).size\
-       runTests
+       runTests\
+       size
 
 .PHONY: clean
 clean:
 	@$(RM_RF) GTAGS
 	@$(RM_RF) GPATH
 	@$(RM_RF) GRTAGS
-#	py3clean .
+	py3clean .
 	@$(RM_RF) bin
 	@$(RM_RF) tmp
 	@$(ECHO) "Cleaned project"
-
 
 .PHONY: info
 info:
@@ -483,25 +515,10 @@ info:
 	@$(ECHO_E) $(BLUE)"CXX: "$(RESET)$(COMPILE.CXX)
 	@$(ECHO_E) $(BLUE)"LD:  "$(RESET)$(LINK)
 
-################################################################################
-#    Functions
-#
+.PHONY: run
+run:
+	@$(RLWRAP) -f commands -H cmd_history $(call runApp)
 
-RUN_DOS2UNIX =
-#define RUN_DOS2UNIX =
-#	@dos2unix -k $< 2> /dev/null
-#endef
-
-RUN_ASTYLE =
-#define RUN_ASTYLE =
-#	@astyle -q $<
-#endef
-
-RUN_GTAGS =
-#define RUN_GTAGS =
-#	@$(MKDIR_P) $(OBJ_OUTDIR)tags/
-#	@$(GTAGS) -c --gtagslabel=new-ctags -i --single-update $< $(OBJ_OUTDIR)tags
-#endef
 
 ################################################################################
 #    Rules
@@ -577,11 +594,9 @@ $(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
 # Size
 %.size: %.elf
 	$(call notify,"SZ  ","$@")
+	$(call sizeElf,"$<","$@")
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
-	@$(SZ) $^ --format=sysv 1>$@
-	@$(ECHO) ""
-	@$(SZ) $^
-	@$(ECHO) ""
+
 
 ################################################################################
 #    Unit tests

@@ -65,6 +65,22 @@ CPPFLAGS+=-DSTM32F072xB
 CPPFLAGS+=-Ithirdparty/CMSIS/Device/ST/STM32F0xx/Include/\
           -Ithirdparty/CMSIS/Include/
 
+
+################################################################################
+#    Functions
+#
+
+# Function to run the program
+override define runApp
+  uart -d "/dev/ttyACM0" -s "115200"
+endef
+
+# Function to calculate the size of the elf
+override define sizeElf
+  @./scripts/get_fw_size "$(1)" 0x20000 0x4000 > "$(2)"
+endef
+
+
 ################################################################################
 #    Toolchain
 #
@@ -73,16 +89,9 @@ CPPFLAGS+=-Ithirdparty/CMSIS/Device/ST/STM32F0xx/Include/\
 remoteDebug:
 	@JLinkGDBServer -select USB -device STM32F072RB -endian little -if SWD -speed 4000 -noir -noLocalhostOnly
 
-
-.PHONY: run
-run:
-	@uart -d /dev/ttyACM0 -s 115200
-
-
 .PHONY: flash
 flash: $(BIN_OUTDIR)flash.jlink
 	@JLinkExe -CommanderScript $<
-
 
 .PHONY: $(BIN_OUTDIR)flash.jlink
 $(BIN_OUTDIR)flash.jlink:  $(BIN_OUTDIR)$(PROJ_NAME).bin

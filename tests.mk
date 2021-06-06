@@ -15,6 +15,11 @@ include Makefile
 CPPUTEST_DIR :=  $(HOME)/opt/cpputest/
 
 #.................................................
+#    Check if tests are available
+
+TESTS_EXIST := $(shell find -maxdepth 1 -type d -name "tests" )
+
+#.................................................
 #    Gather of objects
 
 TEST_AS_SRCs  = $(shell find "src/" -name "*.[s|S]")
@@ -27,9 +32,11 @@ ifdef PORT_NAME
   TEST_CXX_SRCs += $(shell find "port/posix/" -name "*.cpp")
 endif
 
-TEST_AS_SRCs    += $(shell find "tests/" -name "*.[s|S]")
-TEST_C_SRCs     += $(shell find "tests/" -name "*.[c|C]")
-TEST_CXX_SRCs   += $(shell find "tests/" -name "*.cpp")
+ifdef TESTS_EXIST
+  TEST_AS_SRCs    += $(shell find "tests/" -name "*.[s|S]")
+  TEST_C_SRCs     += $(shell find "tests/" -name "*.[c|C]")
+  TEST_CXX_SRCs   += $(shell find "tests/" -name "*.cpp")
+endif
 
 TEST_OBJS      = $(sort $(TEST_AS_SRCs:%.s=$(TEST_OUTDIR)%.o))
 TEST_OBJS      += $(sort $(TEST_C_SRCs:%.c=$(TEST_OUTDIR)%.o))
@@ -75,11 +82,17 @@ TEST_LINK        ?= $(TEST_LD)     $^ -o $@ $(TEST_CPPFLAGS) $(TEST_LDFLAGS)
 #    Rules
 #
 
+ifdef TESTS_EXIST
 .PHONY: runCppUtest
 runCppUtest: $(BIN_OUTDIR)$(PROJ_NAME)_runTests
 	@$(ECHO_E) $(BLACK)"[TEST] "$(BLUE)"CppUTest"$(RESET)
 	@./$< -c
-
+else
+.PHONY: runCppUtest
+runCppUtest:
+	@$(ECHO_NE) $(BLACK)"[TEST] "$(BLUE)"CppUTest "$(RESET)
+	@$(ECHO_E) $(YELLOW)"Disabled"$(RESET)
+endif
 
 # Build test program
 $(BIN_OUTDIR)$(PROJ_NAME)_runTests: $(TEST_OBJS)
