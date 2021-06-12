@@ -517,7 +517,11 @@ info:
 
 .PHONY: run
 run:
-	@$(RLWRAP) -f commands -H cmd_history $(call runApp)
+	@if [ ! -f commands ]; then
+		@$(RLWRAP) -H .cmd_history $(call runApp)
+	@else
+		@$(RLWRAP) -f commands -H .cmd_history $(call runApp)
+	@fi
 
 
 ################################################################################
