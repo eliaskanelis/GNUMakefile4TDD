@@ -33,12 +33,12 @@ ifdef PORT_NAME
 endif
 
 ifdef TESTS_EXIST
-  TEST_AS_SRCs    += $(shell find "tests/" -name "*.[s|S]")
-  TEST_C_SRCs     += $(shell find "tests/" -name "*.[c|C]")
-  TEST_CXX_SRCs   += $(shell find "tests/" -name "*.cpp")
+  TEST_AS_SRCs  += $(shell find "tests/" -name "*.[s|S]")
+  TEST_C_SRCs   += $(shell find "tests/" -name "*.[c|C]")
+  TEST_CXX_SRCs += $(shell find "tests/" -name "*.cpp")
 endif
 
-TEST_OBJS      = $(sort $(TEST_AS_SRCs:%.s=$(TEST_OUTDIR)%.o))
+TEST_OBJS       = $(sort $(TEST_AS_SRCs:%.s=$(TEST_OUTDIR)%.o))
 TEST_OBJS      += $(sort $(TEST_C_SRCs:%.c=$(TEST_OUTDIR)%.o))
 TEST_OBJS      += $(sort $(TEST_CXX_SRCs:%.cpp=$(TEST_OUTDIR)%.o))
 
@@ -96,11 +96,10 @@ endif
 
 # Build test program
 $(BIN_OUTDIR)$(PROJ_NAME)_runTests: $(TEST_OBJS)
-	@$(ECHO_NE) $(BLACK)"[TEST] "$(BLUE)"LD  "$(RESET)"$< "
+	@$(ECHO_NE) $(BLACK)"[TEST] "$(BLUE)"LD  "$(RESET)"$@ "
 	@$(MKDIR_P) $(dir $@)
 	@$(TEST_LINK) 2>&1 | $(TEE) $(@:%.to=%.terr) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
-
 
 # Create test object from Assembly source code
 $(TEST_OUTDIR)%.o: %.s $(TEST_OUTDIR)%.d $(AUX)
@@ -110,7 +109,6 @@ $(TEST_OUTDIR)%.o: %.s $(TEST_OUTDIR)%.d $(AUX)
 	@$(MV_F) $(@:%.o=%.Td) $(@:%.o=%.d) && $(TOUCH) $@ || { $(ECHO_E) $(RED)"FAIL\n\n"$(RESET); exit 1; }
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
-
 # Create test object from C source code
 $(TEST_OUTDIR)%.o: %.c $(TEST_OUTDIR)%.d $(AUX)
 	@$(ECHO_NE) $(BLACK)"[TEST] "$(BLUE)"CC  "$(RESET)"$< "
@@ -119,7 +117,6 @@ $(TEST_OUTDIR)%.o: %.c $(TEST_OUTDIR)%.d $(AUX)
 	@$(MV_F) $(@:%.o=%.Td) $(@:%.o=%.d) && $(TOUCH) $@ || { $(ECHO_E) $(RED)"FAIL\n\n"$(RESET); exit 1; }
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
-
 # Create test object from C++ source code
 $(TEST_OUTDIR)%.o: %.cpp $(TEST_OUTDIR)%.d $(AUX)
 	@$(ECHO_NE) $(BLACK)"[TEST] "$(BLUE)"CXX "$(RESET)"$< "
@@ -127,7 +124,6 @@ $(TEST_OUTDIR)%.o: %.cpp $(TEST_OUTDIR)%.d $(AUX)
 	@$(TEST_COMPILE.CXX) 2>&1 | $(TEE) $(@:%.to=%.terr) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
 	@$(MV_F) $(@:%.o=%.Td) $(@:%.o=%.d) && $(TOUCH) $@ || { $(ECHO_E) $(RED)"FAIL\n\n"$(RESET); exit 1; }
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
-
 
 # Show information for debugging purposes
 .PHONY: testinfo
