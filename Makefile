@@ -1,5 +1,15 @@
 ################################################################################
 #
+#    GNU Make makefile for cross-compile and Test driven development in
+#    Assembly/C/C++ for multi-targeted environments
+#
+#    Maintainer: Elias Kanelis (hkanelhs@yahoo.gr)
+#    License:    MIT
+#
+
+
+################################################################################
+#
 #
 # Usage:
 #
@@ -185,11 +195,19 @@ endif
 #
 
 #.................................................
+#    Paths
+
+MAKEFILE_FILEPATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+MAKEFILE_DIRPATH  := $(dir $(MAKEFILE_FILEPATH))
+
+TESTSMK_FILEPATH := $(MAKEFILE_DIRPATH)tests.mk
+
+COMPILERMK_FILEPATH := $(MAKEFILE_DIRPATH)compiler.mk
+
+#.................................................
 #    Project's name
 
-MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
-MKFILE_DIR  := $(dir $(MKFILE_PATH))
-PROJ_NAME   := $(shell basename $(MKFILE_DIR))
+PROJ_NAME   := $(shell basename $(MAKEFILE_DIRPATH))
 
 #.................................................
 #    Host's OS
@@ -247,8 +265,8 @@ XARGS_R0 := xargs -r -0
 TPUT     := tput
 GTAGS    := gtags
 SED      := sed
-RLWRAP   :=rlwrap -I -R -a -A --no-warnings
-CAT      :=cat
+RLWRAP   := rlwrap -I -R -a -A --no-warnings
+CAT      := cat
 
 ################################################################################
 #    Default toolchain
@@ -323,7 +341,7 @@ endif
 #.................................................
 #    Auxiliary files that build depends on
 
-AUX = Makefile compiler.mk
+AUX = $(MAKEFILE_FILEPATH) $(COMPILERMK_FILEPATH)
 
 ifdef PORT_NAME
   ifneq (,$(wildcard port/$(PORT_NAME)/Makefile))
@@ -387,7 +405,7 @@ endif
 #    Compiler
 #
 
--include compiler.mk
+-include $(COMPILERMK_FILEPATH)
 
 ifdef PORT_NAME
   -include port/$(PORT_NAME)/Makefile
@@ -609,9 +627,9 @@ $(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
 .PHONY: runTests
 runTests:
 ifdef PORT_NAME
-	@$(MAKE) PORT_NAME=posix --no-print-directory -f tests.mk runCppUtest
+	@$(MAKE) PORT_NAME=posix --no-print-directory -f $(TESTSMK_FILEPATH) runCppUtest
 else
-	@$(MAKE) --no-print-directory -f tests.mk runCppUtest
+	@$(MAKE) --no-print-directory -f $(TESTSMK_FILEPATH) runCppUtest
 endif
 
 ################################################################################

@@ -2,7 +2,16 @@
 #    Include master makefile
 #
 
-include Makefile
+#.................................................
+#    Paths
+
+TESTSMK_FILEPATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+TESTSMK_DIRPATH  := $(dir $(TESTSMK_FILEPATH))
+
+MAKEFILE_FILEPATH := $(TESTSMK_DIRPATH)Makefile
+
+
+include $(MAKEFILE_FILEPATH)
 
 
 ################################################################################
