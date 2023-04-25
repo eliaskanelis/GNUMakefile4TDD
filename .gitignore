@@ -1,18 +1,10 @@
-# Executables
-*.elf
-*.bin
-*.hex
-*.exe
-
 # Generated files
-*.o
-*.lst
-*.map
-*.d
-*.Td
+/bin
+/obj
+/tmp
 
 # Auto-generated files
-version.h
+/inc/version.h
 
 # Other files
 *.tmp
@@ -23,8 +15,3 @@ bin
 doc
 obj
 tmp
-
-# Eclipse
-proj/eclipse_workspace/.metadata
-proj/eclipse_workspace/RemoteSystemsTempFiles
-proj/Packages/

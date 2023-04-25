@@ -1,9 +1,5 @@
 ### GNU Makefile project for cross-compile and TDD in C
 
-[![Build Status](https://travis-ci.org/TediCreations/GNUMakefile4TDD.svg?branch=dev)](https://travis-ci.org/TediCreations/GNUMakefile4TDD)
-
-*SOS: Someone please help me set Travis CI correctly...*
-
 ### Description
 
 > GNU Make makefile for cross-compile and Test driven development in C for
@@ -70,7 +66,7 @@ sudo apt-get install libncurses5-dev libncursesw5-dev
 sudo apt-get install git
 sudo apt-get install doxygen
 sudo apt-get install graphviz
-#sudo apt-get install cpputest( build from Github )
+#sudo apt-get install cpputest
 ```
 
 Optional:
