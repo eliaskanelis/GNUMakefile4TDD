@@ -16,7 +16,7 @@ steps:
 - name: Lint
   image: tedicreations/devtools:latest
   commands:
-  - ./script/lint.sh
+  - ./scripts/lint.sh
 
 - name: Build Posix
   image: tedicreations/devtools:latest
