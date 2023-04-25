@@ -13,6 +13,11 @@ steps:
   commands:
   - chown -R 1000:1000 .
 
+- name: Lint
+  image: tedicreations/devtools:latest
+  commands:
+  - ./script/lint.sh
+
 - name: Build Posix
   image: tedicreations/devtools:latest
   commands:
