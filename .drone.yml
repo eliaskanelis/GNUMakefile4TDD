@@ -11,7 +11,7 @@ steps:
 - name: Fix drone limitation
   image: drone/git
   commands:
-  - git fetch --tags --unshallow
+  - git fetch --tags
   - chown -R 1000:1000 .
 
 - name: Lint
