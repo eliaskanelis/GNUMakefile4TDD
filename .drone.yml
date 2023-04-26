@@ -11,6 +11,7 @@ steps:
 - name: Fix drone limitation
   image: drone/git
   commands:
+  - git fetch origin master
   - git fetch --tags
   - chown -R 1000:1000 .
 
