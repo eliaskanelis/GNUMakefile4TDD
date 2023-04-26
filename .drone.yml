@@ -8,9 +8,10 @@ platform:
 
 steps:
 
-- name: Change permissions to user
+- name: Fix drone limitation
   image: drone/git
   commands:
+  - git fetch --tags --unshallow
   - chown -R 1000:1000 .
 
 - name: Lint
