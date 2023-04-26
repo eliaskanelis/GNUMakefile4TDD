@@ -11,7 +11,7 @@ steps:
 - name: Fix drone limitation
   image: drone/git
   commands:
-  - git fetch origin master
+  # - git fetch origin master
   - git fetch --tags
   - git fetch --all
   - chown -R 1000:1000 .
@@ -20,6 +20,14 @@ steps:
   image: tedicreations/devtools:latest
   commands:
   - ./scripts/lint.sh
+
+- name: Test
+  image: tedicreations/devtools:latest
+  commands:
+  - git branch
+  - git tag
+  - ls -lsa
+  - git status
 
 - name: Build Posix
   image: tedicreations/devtools:latest
