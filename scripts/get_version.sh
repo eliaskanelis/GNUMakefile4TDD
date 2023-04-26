@@ -14,11 +14,11 @@ if git tag > /dev/null 2>&1; then
 	GIT_RAW_VERSION=$(git describe --always --dirty --long --tags)
 	TOTAL_NUM_COMMITS=$(git rev-list --count HEAD)
 	BRANCH=$(git rev-parse --abbrev-ref HEAD)
-	AHEAD_BY_MASTER=$(git log --oneline master -- "${BRANCH}" | wc -l | bc)
+	AHEAD_BY_MASTER=$(git rev-list dev --not master | wc -l | bc)
 	TOTAL_NUM_UNTRACKED=$(git ls-files --exclude-standard --others --full-name -- . | wc -l | bc)
 	COMMIT_HASH=$(git rev-parse --short --verify HEAD)
 
-	IFS='-' read -r -a git_raw_version <<< "$GIT_RAW_VERSION"
+	IFS='-' read -r -a git_raw_version <<< "${GIT_RAW_VERSION}"
 	IFS='v' read -r -a tag <<< "${git_raw_version[0]}"
 	IFS='.' read -r -a major_minor <<< "${tag[1]}"
 
