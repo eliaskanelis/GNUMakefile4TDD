@@ -1,28 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-PCLINT_PATH="."
+set -euo pipefail
 
 INCLUDE_PATH_FILE="tmp/gcc-include-path.lnt"
 
 function generate_settings
 {
 	local compiler=$1
-	local prepro_file=$2
 
 	local DUMMY_FILE="tmp/dummy.c"
 
-	[ -x $compiler ] || die "$compiler not accessible"
+	[ -x "${compiler}" ] || die "$compiler not accessible"
 
-	echo -n '' >$INCLUDE_PATH_FILE
-	echo -n '' >$DUMMY_FILE
+	echo -n '' > ${INCLUDE_PATH_FILE}
+	echo -n '' > ${DUMMY_FILE}
 
 	# Generate list of include paths
 	skip=1
-	$compiler -c -v $DUMMY_FILE 2>&1 | while read line; do
+	${compiler} -c -v ${DUMMY_FILE} 2>&1 | while read -r line; do
 		if [ "$line" == '#include "..." search starts here:' ]; then
-			read line
+			read -r line
 			if [ "$line" == '#include <...> search starts here:' ]; then
-				read line
+				read -r line
 				skip=0
 			fi
 		fi
@@ -32,10 +31,10 @@ function generate_settings
 		fi
 
 		if [ $skip -eq 0 ]; then
-			echo "--i$(echo $line)" >>$INCLUDE_PATH_FILE
-			echo "+libdir($(echo $line))" >>$INCLUDE_PATH_FILE
+			echo "--i${line}" >> ${INCLUDE_PATH_FILE}
+			echo "+libdir(${line})" >> ${INCLUDE_PATH_FILE}
 		fi
-		rm -fR DUMMY_FILE
+		rm -fR "${DUMMY_FILE}"
 		rm -fR "dummy.o"
 	done
 }
@@ -50,7 +49,7 @@ GCC="/usr/bin/gcc"
 GPP="/usr/bin/g++"
 
 # First generate settings for GNU C compiler.
-generate_settings $GCC lint_cmac.h
+generate_settings "${GCC}"
 
 # If GNU C++ compiler exists, generate settings for g++ as well.
 # Note! This will overwrite 'include.lnt' from gcc but this doesn't
