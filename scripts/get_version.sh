@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#This script should be run only from the Makefile
-#It generates version.h
+# This script should be run only from the Makefile
+# It generates version.h
 
 set -euo pipefail
 

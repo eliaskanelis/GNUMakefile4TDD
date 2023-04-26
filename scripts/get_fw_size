@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Calculate and display the memory consumption of a build
+
 set -euo pipefail
 
 usage()
