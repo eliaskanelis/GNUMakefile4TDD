@@ -12,7 +12,7 @@ steps:
   image: drone/git
   commands:
   - git fetch
-  # - git fetch origin master
+  - git fetch origin master:master
   - git fetch --tags
   - git fetch --all
   - chown -R 1000:1000 .
@@ -25,7 +25,7 @@ steps:
 - name: Test
   image: tedicreations/devtools:latest
   commands:
-  - git branch
+  - git branch -a
   - git tag
   - ls -lsa
   - git status
