@@ -17,7 +17,7 @@ NM  = arm-none-eabi-nm
 #.................................................
 #    Linker script
 
-LDFLAGS  += -Tport/$(PORT_NAME)/STM32F072RBTx_FLASH.ld
+LDFLAGS  += -Tport/$(PORT_NAME)/sys/STM32F072RBTx_FLASH.ld
 
 #.................................................
 #    C standard library

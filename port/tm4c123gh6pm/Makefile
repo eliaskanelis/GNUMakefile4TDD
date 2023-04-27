@@ -17,7 +17,7 @@ NM  = arm-none-eabi-nm
 #.................................................
 #    Linker script
 
-LDFLAGS  += -Tport/$(PORT_NAME)/TM4C123GH6PM.ld
+LDFLAGS  += -Tport/$(PORT_NAME)/sys/TM4C123GH6PM.ld
 
 #.................................................
 # Reset Handler
