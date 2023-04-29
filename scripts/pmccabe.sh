@@ -13,4 +13,4 @@ find . -type d \( \
      -path './port/*/sys' -o \
      -path './thirdparty' \
      \) -prune \
-     -o -name  '*.[c|h|cpp|hpp]' -print | xargs pmccabe -r 10
+     -o -name  '*.[c|h|cpp|hpp]' -print0 | xargs -0 pmccabe -r 10
