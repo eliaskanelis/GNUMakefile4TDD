@@ -15,11 +15,12 @@ steps:
   - git fetch --tags
   - chown -R 1000:1000 .
 
-- name: Lint
+- name: Analyse
   image: tedicreations/devtools:latest
   commands:
   - ./scripts/shellcheck.sh
   - ./scripts/cppcheck.sh
+  - ./scripts/pmccabe.sh
 
 - name: Build Posix
   image: tedicreations/devtools:latest
