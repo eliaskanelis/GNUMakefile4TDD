@@ -36,3 +36,8 @@ steps:
   image: tedicreations/devtools:latest
   commands:
   - make PORT_NAME=tm4c123gh6pm
+
+- name: Docs
+  image: tedicreations/devtools:latest
+  commands:
+  - ./scripts/doxygen.sh

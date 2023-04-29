@@ -3,154 +3,18 @@
 #    GNU Make makefile for cross-compile and Test driven development in
 #    Assembly/C/C++ for multi-targeted environments
 #
-#    Maintainer: Elias Kanelis (hkanelhs@yahoo.gr)
+#    Maintainer: Kanelis Ilias (hkanelhs@yahoo.gr)
 #    License:    MIT
 #
 
 
 ################################################################################
 #
-#
 # Usage:
 #
 #    make
 #    make PORT_NAME=<name> TARGET=<dbg/rel>
 #
-
-#SEC=5
-#SEC=$(shell python -c 'from random import randint; print(randint(1, 5));')
-#	sleep $(SEC)
-#	@$(ECHO_N) " Slept for $(SEC) sec "
-
-#	echo "RV: $${PIPESTATUS[0]}"
-#	if [ "$${PIPESTATUS[0]}" -ne "0" ]; then \
-#	  ${ECHO_E} ${RED}"Build Fail!!!\n"${RESET}; \
-#	  exit 1; \
-#	fi
-
-#$(MAKECMDGOALS)
-
-#GCC_EXISTS :=            $(shell command -v gcc 2> /dev/null)
-#GPP_EXISTS :=            $(shell command -v g++ 2> /dev/null)
-#GDB_EXISTS :=            $(shell command -v gdb 2> /dev/null)
-#VALGRIND_EXISTS :=       $(shell command -v valgrind 2> /dev/null)
-#SED_EXISTS :=            $(shell command -v sed 2> /dev/null)
-#PERL_EXISTS :=           $(shell command -v perl 2> /dev/null)
-#GIT_EXISTS :=            $(shell command -v git 2> /dev/null)
-#DOXYGEN_EXISTS :=        $(shell command -v doxygen 2> /dev/null)
-#DOT_EXISTS :=            $(shell command -v dot 2> /dev/null)
-#JLINK_EXISTS :=          $(shell command -v JLinkExe 2> /dev/null)
-#SALEAE_EXISTS :=         $(shell command -v Saleae 2> /dev/null)
-#PICOCOM_EXISTS :=        $(shell command -v picocom 2> /dev/null)
-#FIREFOX_EXISTS :=        $(shell command -v firefox 2> /dev/null)
-#FLINT_EXISTS :=          $(shell command -v flint 2> /dev/null)
-
-# We need sed, check if it exists
-#ifndef SED_EXISTS
-#	$(error "Please install 'sed' scripting language!")
-#endif
-
-# Project version
-#ifdef GIT_EXISTS
-#  PROJECT_NUMBER ?=      $(shell git describe --always \
-#                         --dirty=" (with uncommitted changes)" --long --tags)
-#endif
-
-
-# Add the following 'help' target to your Makefile
-# And add help text after each target name starting with '\#\#'
-# A category can be added with @category
-# Credits to: https://gist.github.com/prwhite/8168133
-#HELP_FUNC := \
-#        %help; \
-#        while(<>) { \
-#                if(/^([a-z0-9_-]+):.*\#\#(?:@(\w+))?\s(.*)$$/) { \
-#                        push(@{$$help{$$2}}, [$$1, $$3]); \
-#                } \
-#        }; \
-#        print "Usage: make $(TPUT_YELLOW)[target]$(TPUT_RESET)\n\n"; \
-#        for ( sort keys %help ) { \
-#                print "$(TPUT_WHITE)$$_:$(TPUT_RESET)\n"; \
-#                printf("  $(TPUT_YELLOW)%-20s$(TPUT_RESET) \
-#                        $(TPUT_GREEN)%s$(TPUT_RESET)\n", $$_->[0], \
-#                        $$_->[1]) for @{$$help{$$_}}; \
-#                print "\n"; \
-#        }
-
-#.PHONY: help
-#help: ##@options Shows a list of all available make options.
-#ifndef PERL_EXISTS
-#	$(warning "Please set variable 'COLOR' to NO!")
-#endif
-#	@perl                 -e '$(HELP_FUNC)' $(MAKEFILE_LIST)
-
-#..............................................................................#
-#	Documentation
-
-# Get version number from git
-# https://christianhujer.github.io/Git-Version-in-Doxygen/
-# TODO: Add port/ and build for TARGET_DIR
-#.PHONY: doc
-#doc: ##@doc Generates documentation.
-#doc: export PROJECT_NUMBER ?= "Beta"
-#doc: export PROJECT_NAME ?=   "Untitled"
-#doc: export PROJECT_BRIEF ?=  ""
-#doc:
-#	$(DOCUMENTATION)
-#	$(MKDIR_P)            $(DOC_DIR)html
-#	@(cd conf/doxygen/ && doxygen)
-#
-#.PHONY: show
-#show: ##@doc Shows documentation.
-#show: doc
-#ifdef FIREFOX_EXISTS
-#	@firefox $(DOC_DIR)html/index.html >>/dev/null
-#else
-#	$(warning "Please install 'chromium-browser'!")
-#endif
-
-#TODO: Build with the same flags gcc compiler!
-#.PHONY: lint
-#lint: ##@analysis Lint static analysis (flexelint).
-#lint: version
-#ifndef FLINT_EXISTS
-#	$(error "Please install 'flint'!")
-#endif
-#	@$(ECHO)
-#	@$(MKDIR_P)           $(TMP_DIR)
-#	@make                 -C $(TMP_DIR) \
-#                              -f $(PC_LINT_DIR)/config/compiler/co-gcc.mak \
-#                              CC_BIN=$(CC_HOST) \
-#                              GXX_BIN=$(CXX_HOST) \
-#                              CFLAGS=$(HOST_CFLAGS) \
-#                              CXXFLAGS=$(HOST_CXXFLAGS) \
-#                              CPPFLAGS= \
-#                              COMMON_FLAGS= \
-#                              > /dev/null
-#	@$(FLINT)	      -w1 -t4 \
-#                              -i$(TMP_DIR) \
-#                              -i$(PC_LINT_DIR)/config/author \
-#                              -i$(PC_LINT_DIR)/config/compiler \
-#                              -i$(PC_LINT_DIR)/config/environment \
-#                              co-gcc.lnt \
-#                              env-posix.lnt \
-#                              $(INCLUDES) \
-#                              $(HOST_C_SRCs)
-#	@$(ECHO)
-#
-#.PHONY: valgrind
-#valgrind: ##@analysis Valgrind dynamic analysis.
-#valgrind: build
-#ifndef VALGRIND_EXISTS
-#	$(error "Please install 'valgrind' dynamical analyser!")
-#endif
-#	@valgrind             $(BIN_DIR)$(HOST_DIR)$(EXEC)
-#
-#.PHONY: todo
-#todo: ##@analysis Check for programmer notes in code.
-#	@egrep                -nr -Rw --color 'bug|BUG|Bug'    $(SRC_DIR) $(INC_DIR) port/ || true
-#	@egrep                -nr -Rw --color 'todo|TODO|Todo' $(SRC_DIR) $(INC_DIR) port/ || true
-#	@egrep                -nr -Rw --color 'test|TEST|Test' $(SRC_DIR) $(INC_DIR) port/ || true
 
 
 ################################################################################
@@ -502,6 +366,8 @@ clean:
 	@$(RM_RF) GRTAGS
 	py3clean .
 	@$(RM_RF) bin
+	@$(RM_RF) obj
+	@$(RM_RF) doc
 	@$(RM_RF) tmp
 	@$(ECHO) "Cleaned project"
 

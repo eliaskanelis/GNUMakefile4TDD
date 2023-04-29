@@ -1,17 +1,8 @@
 # Generated files
 /bin
 /obj
+/doc
 /tmp
 
 # Auto-generated files
 /inc/version.h
-
-# Other files
-*.tmp
-
-# Folders
-.dep
-bin
-doc
-obj
-tmp
