@@ -24,9 +24,9 @@ Hint: The main change will be the use of python scripts to abstract tools such a
 - [ ] Multiple targets
 - [ ] Lint (pc-lint, cppcheck etc)
 - [ ] Documentation generation (doxygen)
-- [ ] Flash, erase etc. micro-controller
-- [ ] Debugging (gdb or other)
-- [ ] Auto versioning( git or other )
+- [x] Flash, erase etc. micro-controller
+- [x] Debugging (gdb or other)
+- [x] Auto versioning( git or other )
 - [x] Color output
 - [x] Support C/C++ and assembly.
 - [ ] Support Rust. Experimental feature.
