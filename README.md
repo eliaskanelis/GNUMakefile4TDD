@@ -1,106 +1,113 @@
-### GNU Makefile project for cross-compile and TDD in C
+## GNU Makefile project for cross-compile and TDD in C
 
-### Description
+## Description
 
-> GNU Make makefile for cross-compile and Test driven development in C for
+> Opinionated GNU Make based build system for cross-compile and Test driven development in C for
 > dual-targeted environments
 
-Uses the **STM32F072RB** micro-controller from ST but it can adapt to any
+Uses **stm32f072rb** and **tm4c123gh6pm** micro-controllers but it can adapt to any
 embedded platform.
 
-### WARNING
+It can be used for embedded development of for any non-embedded application.
+
+## WARNING
 
 I designed a better makefile based build system and in the next weeks/months it will be integrated here.
 This means that the current functionality will change after the update happens.
 
 Hint: The main change will be the use of python scripts to abstract tools such as linting, flashing, etc from the main functionality of the build system that is to compile and link.
 
-### Goals
+## Goals
 
-All of these are satisfied but need improvement.
+1. Test driven development (cppUtest)
+2. Multi-architecture Build (GNU/Linux & micro-controller)
+3. Test driven development (cppUtest)
+4. Lint (pc-lint, cppcheck etc)
+5. Documentation generation (doxygen)
+6. Flash, erase etc. micro-controller
+7. Debugging (gdb or other)
+8. Auto versioning( git or other )
+9. Color output
+10. Support C/C++ and assembly. (Rust?)
+11. Auto-dependency in build rules.
+12. Automatic dev tool setup (Conan)
 
-1. ~~Test driven development (cppUtest)~~
-2. ~~Multi-architecture Build (GNU/Linux & micro-controller)~~
-3. Lint (pc-lint)
-4. Documentation generation (doxygen)
-5. Flash, erase etc. micro-controller
-6. Debugging (gdb or other)
-7. Auto versioning( git or other )
-8. Color output
-9. Support C/C++ and assembly.
-10. Auto-dependency in build rules.
-11. Automatic dev tool setup (Conan)
+## Filesystem
 
-### Dependencies
+The filesystem of the project is opinionated and these are the main
 
-Required:
+- bin
 
-Under GNU/Linux environment( Makefile is not tested on Windows or Mac OS )
+	Output binaries, libraries, map file not kept under version control.
 
-1. GNU make
-2. gcc
-3. g++
-4. gdb debugger
-5. wine
-6. pc-lint.exe (with wine)
-7. valgrind
-8. sed
-9. perl
-10. tput
-11. git
-12. doxygen
-13. graphviz
-14. cppUtest
+- conf (optional)
 
-```sh
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install make
-sudo apt-get install build-essential
-sudo apt-get install gdb
-#sudo apt-get install wine( build from Github script )
-sudo apt-get install valgrind
-#sudo apt-get install sed
-sudo apt-get install perl
-sudo apt-get install libncurses5-dev libncursesw5-dev
-sudo apt-get install git
-sudo apt-get install doxygen
-sudo apt-get install graphviz
-#sudo apt-get install cpputest
-```
+	Stored configurations for tools.
 
-Optional:
+- inc
 
-1. Segger JLink drivers
-2. Saleae logic analyser
-3. picocom
-4. firefox
+	Header files part of the output library.
+
+- port (optional)
+
+	One sub-directory per port.
+
+- scripts
+
+	Scripts used by the CI/CD system or the build system.
+
+- src
+
+	Source files part of the output library.
+
+- tests (optional)
+
+	Test cases for the code written. (cpputest)
+
+- thirdparty (optional)
+
+	Thirdparty code
+
+- tmp
+
+	Generated files not kept under version control.
+
+## Dependencies
+
+The makefile can run with [devtools](https://hub.docker.com/r/tedicreations/devtools) docker image.
 
 ```sh
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install picocom
-sudo apt-get install firefox
+docker pull tedicreations/devtools
 ```
 
-### How to use
+## Usage
 
-To see available targets and help information:
+### Building
+
+The makefile supports building the same hardware independent code with different ports.
+First identify the [available ports](port) (if any):
+
+If there are no ports start building like this:
 
 ```sh
-make help
+make
 ```
 
-Build host, target and tests:
+If there are ports then run it like this:
 
 ```sh
-make all
+make PORT_NAME=<port name>
 ```
 
-### Maintainer
+### Test driver development
 
-[Kanelis Ilias](mailto:hkanelhs@yahoo.gr)
+A ccputest based test will run at the end of every succesfull build.
 
-### License
+## License
 
-[MIT](LICENSE) © Kanelis Ilias
+See `LICENSE` for more information.
+
+
+## Contact
+
+Kanelis Ilias - [email me](mailto:hkanelhs@yahoo.gr)
