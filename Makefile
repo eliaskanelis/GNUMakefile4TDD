@@ -71,7 +71,9 @@ COMPILERMK_FILEPATH := $(MAKEFILE_DIRPATH)compiler.mk
 #.................................................
 #    Project's name
 
-PROJ_NAME   := $(shell basename $(MAKEFILE_DIRPATH))
+APPS := $(sort $(notdir $(shell find "apps" -maxdepth 1 -type d -not -path "apps" -print)))
+DEFAULT_APP := $(firstword $(APPS))
+PROJ_NAME := $(shell basename $(MAKEFILE_DIRPATH))
 
 #.................................................
 #    Host's OS
@@ -151,6 +153,13 @@ CXXFLAGS =
 LDFLAGS  =
 
 ################################################################################
+#    Utils
+#
+
+FILTER_OUT = $(foreach element,$(2),$(if $(findstring $(1),$(element)),,$(element)))
+FILTER     = $(foreach element,$(2),$(if $(findstring $(1),$(element)),$(element)))
+
+################################################################################
 #    Colors
 #
 
@@ -226,9 +235,27 @@ ifdef PORT_NAME
   CXX_SRCs += $(shell find "port/$(PORT_NAME)/" -name "*.cpp")
 endif
 
+COMPONENTS :=
+ifneq (,$(wildcard components))
+  COMPONENTS += $(sort $(notdir $(shell find "components" -maxdepth 1 -type d -not -path "components" -print)))
+endif
+
+AS_SRCs  += $(foreach COMPONENT,$(COMPONENTS),$(shell find "components/$(COMPONENT)/src/" -name "*.[s|S]"))
+C_SRCs   += $(foreach COMPONENT,$(COMPONENTS),$(shell find "components/$(COMPONENT)/src/" -name "*.[c|C]"))
+CXX_SRCs += $(foreach COMPONENT,$(COMPONENTS),$(shell find "components/$(COMPONENT)/src/" -name "*.cpp"))
+
 AS_SRCs  := $(sort $(AS_SRCs))
 C_SRCs   := $(sort $(C_SRCs))
 CXX_SRCs := $(sort $(CXX_SRCs))
+
+APP_AS_SRCs  += $(foreach APP,$(APPS),$(shell find "apps/$(APP)/" -name "*.[s|S]"))
+APP_C_SRCs   += $(foreach APP,$(APPS),$(shell find "apps/$(APP)/" -name "*.[c|C]"))
+APP_CXX_SRCs += $(foreach APP,$(APPS),$(shell find "apps/$(APP)/" -name "*.cpp"))
+
+APP_AS_SRCs  := $(sort $(APP_AS_SRCs))
+APP_C_SRCs   := $(sort $(APP_C_SRCs))
+APP_CXX_SRCs := $(sort $(APP_CXX_SRCs))
+
 
 #.................................................
 #    Output dir
@@ -254,12 +281,18 @@ OBJS=  $(sort $(AS_SRCs:%.s=$(OBJ_OUTDIR)%.o))
 OBJS+= $(sort $(C_SRCs:%.c=$(OBJ_OUTDIR)%.o))
 OBJS+= $(sort $(CXX_SRCs:%.cpp=$(OBJ_OUTDIR)%.o))
 
+APP_OBJS=  $(sort $(APP_AS_SRCs:%.s=$(OBJ_OUTDIR)%.o))
+APP_OBJS+= $(sort $(APP_C_SRCs:%.c=$(OBJ_OUTDIR)%.o))
+APP_OBJS+= $(sort $(APP_CXX_SRCs:%.cpp=$(OBJ_OUTDIR)%.o))
 
 #.................................................
 #    Includes
 
-CPPFLAGS+=-Iinc/
-CPPFLAGS+=-Isrc/
+CPPFLAGS +=-Iinc/
+CPPFLAGS +=-Isrc/
+
+CPPFLAGS += $(foreach COMPONENT,$(COMPONENTS),-Icomponents/$(COMPONENT)/inc/)
+CPPFLAGS += $(foreach COMPONENT,$(COMPONENTS),-Icomponents/$(COMPONENT)/src/)
 
 ifdef PORT_NAME
   CPPFLAGS+=-Iport/
@@ -278,7 +311,6 @@ endif
 COMPILE.AS  ?= $(AS)  -c $< -o $@ $(CPPFLAGS) $(ASFLAGS)
 COMPILE.CC  ?= $(CC)  -c $< -o $@ $(CPPFLAGS) $(CFLAGS)
 COMPILE.CXX ?= $(CXX) -c $< -o $@ $(CPPFLAGS) $(CXXFLAGS)
-LINK        ?= $(LD)     $^ -o $@ $(CPPFLAGS) $(LDFLAGS)
 
 ################################################################################
 #    Functions
@@ -301,7 +333,7 @@ RUN_GTAGS =
 #endef
 
 define runApp
-  ./$(BIN_OUTDIR)$(PROJ_NAME).elf
+  ./$(BIN_OUTDIR)$(DEFAULT_APP).elf
 endef
 
 # Function to calculate the size of the elf
@@ -319,7 +351,7 @@ all: build
 	@$(ECHO_E) $(GREEN)"Build finished succesfully"$(RESET)
 
 .PHONY: size
-size: $(BIN_OUTDIR)$(PROJ_NAME).size
+size: $(BIN_OUTDIR)$(DEFAULT_APP).size
 	@$(CAT) $<
 	@$(ECHO)
 
@@ -347,16 +379,22 @@ ifndef PORT_NAME
   endif
 endif
 
+BUILD_APPS_ELF:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).elf)
+BUILD_APPS_BIN:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).bin)
+BUILD_APPS_HEX:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).hex)
+BUILD_APPS_SYM:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).sym)
+BUILD_APPS_SIZE:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).size)
+
 .PHONY: build
-build: check\
-       version\
-       tags\
-       $(BIN_OUTDIR)$(PROJ_NAME).elf\
-       $(BIN_OUTDIR)$(PROJ_NAME).bin\
-       $(BIN_OUTDIR)$(PROJ_NAME).hex\
-       $(BIN_OUTDIR)$(PROJ_NAME).sym\
-       $(BIN_OUTDIR)$(PROJ_NAME).size\
-       runTests\
+build: check \
+       version \
+       tags \
+       ${BUILD_APPS_ELF} \
+       ${BUILD_APPS_BIN} \
+       ${BUILD_APPS_HEX} \
+       ${BUILD_APPS_SYM} \
+       ${BUILD_APPS_SIZE} \
+       runTests \
        size
 
 .PHONY: clean
@@ -366,7 +404,6 @@ clean:
 	@$(RM_RF) GRTAGS
 	py3clean .
 	@$(RM_RF) bin
-	@$(RM_RF) obj
 	@$(RM_RF) doc
 	@$(RM_RF) tmp
 	@$(ECHO) "Cleaned project"
@@ -393,11 +430,15 @@ info:
 	  do \
 	    echo "    $$i"; \
 	  done
+	@$(ECHO_E) $(BLUE)"APP_OBJS:"$(RESET)
+	for i in $(APP_OBJS) ; \
+	  do \
+	    echo "    $$i"; \
+	  done
 	@$(ECHO) ""
 	@$(ECHO_E) $(BLUE)"AS:  "$(RESET)$(COMPILE.AS)
 	@$(ECHO_E) $(BLUE)"CC:  "$(RESET)$(COMPILE.CC)
 	@$(ECHO_E) $(BLUE)"CXX: "$(RESET)$(COMPILE.CXX)
-	@$(ECHO_E) $(BLUE)"LD:  "$(RESET)$(LINK)
 
 .PHONY: run
 run:
@@ -447,11 +488,31 @@ $(OBJ_OUTDIR)%.o: %.cpp $(OBJ_OUTDIR)%.d $(AUX)
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
 
+# Library
+$(BIN_OUTDIR)lib$(PROJ_NAME).a: $(OBJS)
+	$(call notify,"AR  ","$@")
+	@$(MKDIR_P) $(dir $@)
+	@$(AR) -rcs $@ $^
+	@$(ECHO_E) $(GREEN)"OK"$(RESET)
+
+
+$(BIN_OUTDIR)lib%.a: $(APP_OBJS)
+	$(call notify,"AR  ","$@")
+	@$(MKDIR_P) $(dir $@)
+	@$(AR) -rcs $@ $(call FILTER,$(OBJ_OUTDIR)apps/$(basename $(notdir $@))/,$^)
+#	@$(AR) -rcs $@ $^
+	@$(ECHO_E) $(GREEN)"OK"$(RESET)
+
+
 # Link
-$(BIN_OUTDIR)$(PROJ_NAME).elf: $(OBJS)
+$(BIN_OUTDIR)%.elf: $(APP_OBJS) | $(BIN_OUTDIR)lib$(PROJ_NAME).a
 	$(call notify,"LD  ","$@")
 	@$(MKDIR_P) $(dir $@)
-	@$(LINK) 2>&1 | $(TEE) $(@:%.o=%.err) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
+	@$(LD) \
+               $(call FILTER,$(OBJ_OUTDIR)apps/$(basename $(notdir $@))/,$^) \
+               $(BIN_OUTDIR)lib$(PROJ_NAME).a -o $@ $(CPPFLAGS) $(LDFLAGS) \
+               2>&1 | $(TEE) $(@:%.o=%.err) \
+               | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
 
@@ -508,6 +569,7 @@ ifeq (0,${MAKELEVEL})
 
 # Manage auto-depedencies( this must be at the end )
 DEPS=$(OBJS:%.o=%.d)
+DEPS+=$(APP_OBJS:%.o=%.d)
 
 .PRECIOUS: $(DEPS)
 $(DEPS): $(AUX)

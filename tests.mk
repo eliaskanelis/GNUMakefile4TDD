@@ -93,7 +93,7 @@ TEST_LINK        ?= $(TEST_LD)     $^ -o $@ $(TEST_CPPFLAGS) $(TEST_LDFLAGS)
 
 ifdef TESTS_EXIST
 .PHONY: runCppUtest
-runCppUtest: $(BIN_OUTDIR)$(PROJ_NAME)_runTests
+runCppUtest: $(BIN_OUTDIR)runTests
 	@$(ECHO_E) $(BLACK)"[TEST] "$(BLUE)"CppUTest"$(RESET)
 	@./$< -c
 else
@@ -104,7 +104,7 @@ runCppUtest:
 endif
 
 # Build test program
-$(BIN_OUTDIR)$(PROJ_NAME)_runTests: $(TEST_OBJS)
+$(BIN_OUTDIR)runTests: $(TEST_OBJS)
 	@$(ECHO_NE) $(BLACK)"[TEST] "$(BLUE)"LD  "$(RESET)"$@ "
 	@$(MKDIR_P) $(dir $@)
 	@$(TEST_LINK) 2>&1 | $(TEE) $(@:%.to=%.terr) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)

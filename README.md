@@ -21,7 +21,7 @@ Hint: The main change will be the use of python scripts to abstract tools such a
 
 - [x] Test driven development (cppUtest)
 - [x] Multi-architecture Build (GNU/Linux & micro-controller)
-- [ ] Multiple targets
+- [x] Multiple targets
 - [ ] Lint (pc-lint, cppcheck etc)
 - [ ] Documentation generation (doxygen)
 - [x] Flash, erase etc. micro-controller
@@ -37,7 +37,9 @@ Hint: The main change will be the use of python scripts to abstract tools such a
 
 The filesystem of the project is opinionated and these are the main
 
+- **apps**: Source files that are part of a target. Each subdirectory a seperate target.
 - **bin**: Output binaries, libraries, map file not kept under version control.
+- **components** (optional): Components that use the same opinionated filesystem. Usually git submodules.
 - **conf** (optional): Stored configurations for tools.
 - **inc**: Header files part of the output library.
 - **port** (optional): One sub-directory per port.
@@ -77,6 +79,10 @@ make PORT_NAME=<port name>
 ### Test driver development
 
 A ccputest based test will run at the end of every succesfull build.
+
+## Known bugs
+
+After v0.5 (Multi-target update): Intermediate files are automatically removed.
 
 ## License
 
