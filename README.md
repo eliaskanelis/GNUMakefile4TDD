@@ -22,11 +22,11 @@ Hint: The main change will be the use of python scripts to abstract tools such a
 - [x] Test driven development (cppUtest)
 - [x] Multi-architecture Build (GNU/Linux & micro-controller)
 - [ ] Multiple targets
-- [?] Lint (pc-lint, cppcheck etc)
-- [?] Documentation generation (doxygen)
-- [?] Flash, erase etc. micro-controller
-- [?] Debugging (gdb or other)
-- [?] Auto versioning( git or other )
+- [ ] Lint (pc-lint, cppcheck etc)
+- [ ] Documentation generation (doxygen)
+- [ ] Flash, erase etc. micro-controller
+- [ ] Debugging (gdb or other)
+- [ ] Auto versioning( git or other )
 - [x] Color output
 - [x] Support C/C++ and assembly.
 - [ ] Support Rust. Experimental feature.
