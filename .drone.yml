@@ -12,6 +12,7 @@ steps:
   image: drone/git
   commands:
   - git fetch origin master:master
+  - git branch --list master || git fetch origin master:master
   - git fetch --tags
   - chown -R 1000:1000 .
 
