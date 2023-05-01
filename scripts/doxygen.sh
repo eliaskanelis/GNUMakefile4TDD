@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Lints C/C++ code
+# Documentation of C/C++ code
 
 set -euo pipefail
 
