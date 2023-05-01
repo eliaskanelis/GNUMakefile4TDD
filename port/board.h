@@ -1,13 +1,11 @@
-﻿// ############################################################################
+// ############################################################################
 // ############################################################################
 // About
-
-//TODO: Doxygen the about section in file board.h
 
 /**
  * \file     board.h
  *
- * \brief    TODO: Write brief
+ * \brief    The Board support package API common to all boards.
  *
  * Created:  2017-12-08
  *

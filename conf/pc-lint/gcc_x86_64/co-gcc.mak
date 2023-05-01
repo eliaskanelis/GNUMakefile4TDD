@@ -170,4 +170,3 @@ clean: clean_temps
 	    size-options.lnt
 
 # vim:ts=8
-
