@@ -91,4 +91,4 @@ See `LICENSE` for more information.
 
 ## Contact
 
-Kanelis Ilias - [email me](mailto:hkanelhs@yahoo.gr)
+Kanelis Elias - [email me](mailto:e.kanelis@voidbuffer.com)

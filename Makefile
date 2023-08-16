@@ -3,7 +3,7 @@
 #    GNU Make makefile for cross-compile and Test driven development in
 #    Assembly/C/C++ for multi-targeted environments
 #
-#    Maintainer: Kanelis Ilias (hkanelhs@yahoo.gr)
+#    Maintainer: Kanelis Elias (e.kanelis@voidbuffer.com)
 #    License:    MIT
 #
 

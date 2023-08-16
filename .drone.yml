@@ -19,28 +19,28 @@ steps:
   - chown -R 1000:1000 .
 
 - name: Analyse
-  image: tedicreations/devtools:latest
+  image: voidbuffer/devtools:latest
   commands:
   - ./scripts/shellcheck.sh
   - ./scripts/cppcheck.sh
   - ./scripts/pmccabe.sh
 
 - name: Build Posix
-  image: tedicreations/devtools:latest
+  image: voidbuffer/devtools:latest
   commands:
   - make PORT_NAME=posix
 
 - name: Build stm32f072rb
-  image: tedicreations/devtools:latest
+  image: voidbuffer/devtools:latest
   commands:
   - make PORT_NAME=stm32f072rb
 
 - name: Build tm4c123gh6pm
-  image: tedicreations/devtools:latest
+  image: voidbuffer/devtools:latest
   commands:
   - make PORT_NAME=tm4c123gh6pm
 
 - name: Docs
-  image: tedicreations/devtools:latest
+  image: voidbuffer/devtools:latest
   commands:
   - ./scripts/doxygen.sh

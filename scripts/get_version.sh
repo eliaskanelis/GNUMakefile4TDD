@@ -67,7 +67,7 @@ cat << EOF > ${GITV_H_TMP} 2> /dev/null
  *
  * Created:  ${COMMIT_DATE}
  *
- * \\author   Kanelis Ilias    hkanelhs@yahoo.gr
+ * \\author   Kanelis Elias    e.kanelis@voidbuffer.com
  */
 
 /**
