@@ -9,7 +9,7 @@
  *
  * Created:  2017-12-08
  *
- * \author   Kanelis Ilias    hkanelhs@yahoo.gr
+ * \author   Kanelis Elias    e.kanelis@voidbuffer.com
  */
 
 /**
