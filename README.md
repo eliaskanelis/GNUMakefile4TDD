@@ -51,10 +51,10 @@ The filesystem of the project is opinionated and these are the main
 
 ## Dependencies
 
-The makefile can run with [devtools](https://hub.docker.com/r/tedicreations/devtools) docker image.
+The makefile can run with [devtools](https://hub.docker.com/r/voidbuffer/devtools) docker image.
 
 ```sh
-docker pull tedicreations/devtools
+docker pull voidbuffer/devtools
 ```
 
 ## Usage
