@@ -25,7 +25,7 @@ steps:
   - ./scripts/cppcheck.sh
   - ./scripts/pmccabe.sh
 
-- name: Build Posix
+- name: Build posix
   image: voidbuffer/devtools:latest
   commands:
   - make PORT_NAME=posix

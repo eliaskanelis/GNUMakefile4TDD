@@ -20,10 +20,6 @@ NM  = arm-none-eabi-nm
 LDFLAGS  += -Tport/$(PORT_NAME)/sys/TM4C123GH6PM.ld
 
 #.................................................
-# Reset Handler
-#LDFLAGS += -e Reset_Handler
-
-#.................................................
 #    C standard library
 
 LDFLAGS  += -lc
@@ -43,12 +39,6 @@ CPPFLAGS += -mfloat-abi=hard
 
 #.................................................
 #    TODO
-
-CPPFLAGS += -fdata-sections\
-            -ffunction-sections
-
-LDFLAGS  += -u --gc-sections
-LDFLAGS  += -Wl,--gc-sections
 
 #LDFLAGS += -Wl,-u
 #LDFLAGS += -Wl,_printf_float
@@ -105,5 +95,5 @@ endef
 #
 
 .PHONY: flash
-flash: $(BIN_OUTDIR)$(PROJ_NAME).bin
+flash: $(BIN_OUTDIR)$(DEFAULT_APP).bin
 	@lm4flash -v -E $<

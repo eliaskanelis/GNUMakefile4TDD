@@ -6,7 +6,7 @@
 // ############################################################################
 // Include files
 
-#include "board.h"
+#include "bsp.h"
 
 #include "TM4C123.h"
 #include <stdint.h>
@@ -19,25 +19,14 @@
 // #define LED_BLUE  (1U << 2)
 #define LED_GREEN (1U << 3)
 
-/******************************************************************************
-	Function definitions
-******************************************************************************/
+// ############################################################################
+// ############################################################################
+// Function definitions
 
 /**
- * \brief Get the boards name.
- *
- * \return The board's name.
+ * \brief Initialise the board.
  */
-const char *getBoardName( void )
-{
-	return "TM4C123GXL";
-}
-
-
-/**
- * \brief Initialise the led.
- */
-void bsp_setup_led( void )
+void bsp_init( void )
 {
 	SYSCTL->RCGCGPIO  |= ( 1U << 5 ); /* enable Run mode for GPIOF */
 	SYSCTL->GPIOHBCTL |= ( 1U << 5 ); /* enable AHB for GPIOF */
@@ -75,4 +64,15 @@ void bsp_delay( const uint32_t num )
 			__NOP();
 		}
 	}
+}
+
+/**
+ * \brief Get the boards name.
+ *
+ * \return The board's name.
+ */
+const char *bsp_getName( void )
+{
+	const char *boardName = "TM4C123GXL";
+	return boardName;
 }

@@ -31,9 +31,9 @@ TESTS_EXIST := $(shell find -maxdepth 1 -type d -name "tests" )
 #.................................................
 #    Gather of objects
 
-TEST_AS_SRCs  = $(shell find "src/" -name "*.[s|S]")
-TEST_C_SRCs   = $(filter-out %main.c,$(shell find "src/" -name "*.[c|C]"))
-TEST_CXX_SRCs = $(filter-out %main.cpp,$(shell find "src/" -name "*.cpp"))
+TEST_AS_SRCs     = $(shell find "src/" -name "*.[s|S]")
+TEST_C_SRCs      = $(filter-out %main.c,$(shell find "src/" -name "*.[c|C]"))
+TEST_CXX_SRCs    = $(filter-out %main.cpp,$(shell find "src/" -name "*.cpp"))
 
 ifdef PORT_NAME
   TEST_AS_SRCs  += $(shell find "port/posix/" -name "*.[s|S]")
@@ -47,9 +47,9 @@ ifdef TESTS_EXIST
   TEST_CXX_SRCs += $(shell find "tests/" -name "*.cpp")
 endif
 
-TEST_OBJS       = $(sort $(TEST_AS_SRCs:%.s=$(TEST_OUTDIR)%.o))
-TEST_OBJS      += $(sort $(TEST_C_SRCs:%.c=$(TEST_OUTDIR)%.o))
-TEST_OBJS      += $(sort $(TEST_CXX_SRCs:%.cpp=$(TEST_OUTDIR)%.o))
+TEST_OBJS        = $(sort $(TEST_AS_SRCs:%.s=$(TEST_OUTDIR)%.o))
+TEST_OBJS       += $(sort $(TEST_C_SRCs:%.c=$(TEST_OUTDIR)%.o))
+TEST_OBJS       += $(sort $(TEST_CXX_SRCs:%.cpp=$(TEST_OUTDIR)%.o))
 
 #.................................................
 #    Flags
@@ -60,12 +60,12 @@ TEST_CFLAGS     =
 TEST_CXXFLAGS   =
 TEST_LDFLAGS    =
 
-TEST_CPPFLAGS  += -I"$(CPPUTEST_DIR)include/"\
-                  -I"$(CPPUTEST_DIR)include/CppUTest/MemoryLeakDetectorNewMacros.h"
+TEST_CPPFLAGS   += -I"$(CPPUTEST_DIR)include/"\
+                   -I"$(CPPUTEST_DIR)include/CppUTest/"
 
-TEST_LDFLAGS   += -L"$(CPPUTEST_DIR)cpputest_build/lib/"\
-                  -lCppUTest\
-                  -lCppUTestExt
+TEST_LDFLAGS    += -L"$(CPPUTEST_DIR)cpputest_build/lib/"\
+                   -lCppUTest\
+                   -lCppUTestExt
 
 TEST_CPPFLAGS   += $(CPPFLAGS)
 TEST_ASFLAGS    += $(ASFLAGS)

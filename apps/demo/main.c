@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include "board.h"
+#include "bsp.h"
 #include "version.h"
 
 // ############################################################################
@@ -19,11 +19,10 @@
 int main( void )
 {
 	( void )printf( "Hello world!\n" );
-	( void )printf( "Board name: %s!\n", getBoardName() );
+	( void )printf( "Board name: %s!\n", bsp_getName() );
 	( void )printf( "Version:    v%s\n", VERSION );
 
-	/* Test led */
-	bsp_setup_led();
+	bsp_init();
 
 	for( int i = 25; i > 0; i-- )
 	{

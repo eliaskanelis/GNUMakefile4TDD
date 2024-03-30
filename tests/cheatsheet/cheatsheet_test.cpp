@@ -1,6 +1,6 @@
 #include "CppUTest/TestHarness.h"
 
-#include "board.h"
+#include "bsp.h"
 
 TEST_GROUP( cheetsheet )
 {
@@ -17,7 +17,7 @@ TEST_GROUP( cheetsheet )
 
 TEST( cheetsheet, board )
 {
-	STRCMP_EQUAL( "GNU/Linux PC", getBoardName() );
+	STRCMP_EQUAL( "posix", bsp_getName() );
 }
 
 TEST( cheetsheet, Print )

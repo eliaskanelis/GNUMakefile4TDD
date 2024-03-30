@@ -6,7 +6,7 @@
 // ############################################################################
 // Include files
 
-#include "board.h"
+#include "bsp.h"
 
 #include "stm32f0xx.h"
 #include <stdint.h>
@@ -15,22 +15,10 @@
 // ############################################################################
 // Function definitions
 
-
 /**
- * \brief Get the boards name.
- *
- * \return The board's name.
+ * \brief Initialise the board.
  */
-const char *getBoardName( void )
-{
-	return "STM32F072RB";
-}
-
-
-/**
- * \brief Initialise the led.
- */
-void bsp_setup_led( void )
+void bsp_init( void )
 {
 	/* Pin is A5 */
 
@@ -86,4 +74,15 @@ void bsp_delay( const uint32_t num )
 	{
 		__NOP();
 	}
+}
+
+/**
+ * \brief Get the boards name.
+ *
+ * \return The board's name.
+ */
+const char *bsp_getName( void )
+{
+	const char *boardName = "stm32f072rb";
+	return boardName;
 }

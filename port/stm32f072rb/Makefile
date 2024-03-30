@@ -34,12 +34,6 @@ CPPFLAGS += -mcpu=cortex-m0\
 #.................................................
 #    TODO
 
-CPPFLAGS += -fdata-sections\
-            -ffunction-sections
-
-LDFLAGS  += -u --gc-sections
-LDFLAGS  += -Wl,--gc-sections
-
 #LDFLAGS += -Wl,-u
 #LDFLAGS += -Wl,_printf_float
 LDFLAGS  += -u _printf_float
@@ -94,7 +88,7 @@ flash: $(BIN_OUTDIR)flash.jlink
 	@JLinkExe -CommanderScript $<
 
 .PHONY: $(BIN_OUTDIR)flash.jlink
-$(BIN_OUTDIR)flash.jlink:  $(BIN_OUTDIR)$(PROJ_NAME).bin
+$(BIN_OUTDIR)flash.jlink:  $(BIN_OUTDIR)$(DEFAULT_APP).bin
 	@$(ECHO) "si 1" > $@
 	@$(ECHO) "device STM32F072RB" >> $@
 	@$(ECHO) "speed 4000" >> $@

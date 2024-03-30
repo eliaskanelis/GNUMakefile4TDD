@@ -6,31 +6,19 @@
 // ############################################################################
 // Include files
 
-#include "board.h"
+#include "bsp.h"
 
 #include <stdio.h>
-#include <stdio.h>
+#include <stdint.h>
 
 // ############################################################################
 // ############################################################################
 // Function definitions
 
-
 /**
- * \brief Get the boards name.
- *
- * \return The board's name.
+ * \brief Initialise the board.
  */
-const char *getBoardName( void )
-{
-	return "GNU/Linux PC";
-}
-
-
-/**
- * \brief Initialise the led.
- */
-void bsp_setup_led( void )
+void bsp_init( void )
 {
 	( void )printf( "Led: setup\n" );
 }
@@ -63,4 +51,15 @@ void bsp_delay( const uint32_t num )
 #if 0
 	( void )printf( "Delay...\n" );
 #endif
+}
+
+/**
+ * \brief Get the boards name.
+ *
+ * \return The board's name.
+ */
+const char *bsp_getName( void )
+{
+	const char *boardName = "posix";
+	return boardName;
 }

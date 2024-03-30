@@ -1,7 +1,47 @@
 ################################################################################
 #
 #    GNU Make makefile for cross-compile and Test driven development in
-#    Assembly/C/C++ for multi-targeted environments
+#    Assembly/C/C++ for multi-targeted environments.
+#
+#    ----- Feature -----
+#
+#    - Multi language support: Assembly/C/C++ (single or mixed)
+#    - Auto code versioning( via git tags )
+#    - Automatic source discovery via predefined search paths.
+#    - Supports test driven development (Optional).
+#    - Speedy compilation with ccache (Optional).
+#    - Expandable custom Makefile per platform. (Optional).
+#
+#    ----- Filesystem -----
+#
+#    - inc:        Mandatory directory that includes to hardware independent
+#                  code.
+#    - src:        Mandatory directory that holds hardware independent code.
+#    - port:       Optional directory that holds hardware dependent code.
+#    - components: Optional directory for software components.
+#                  Normally it is a git submodule pointing to the platform.
+#                  Features: Automatical discovery.
+#    - thirdparty: Optional directory for software components.
+#                  Normally it is a git submodule pointing to the platform.
+#                  Features: No Automatical discovery.
+#    - tests:      Optional directory for unit tests
+#                  Features: Automatical discovery.
+#    - conf:       Directory that holds configuration files.
+#    - scripts:    Directory for keeping scripts.
+#
+#    ----- Terminology -----
+#
+#    HAL:                  Hardware abstraction layer.
+#    CAL:                  Compiler abstraction layer.
+#    OSAL:                 OS abstraction layer.
+#    Platform:             A system composed of a spesific compiler, cpu
+#                          architecture and OS (or freestanding).
+#    Platform dependent:   Attribute for code that depends on a combination of
+#                          compiler, hardware and OS that can be abstracted.
+#    Hardware dependent:   Attribute for code that is low level, meaning that
+#                          depends on specific hardware.
+#    Hardware independent: Portable code to any system.
+#
 #
 #    Maintainer: Kanelis Elias (e.kanelis@voidbuffer.com)
 #    License:    MIT
