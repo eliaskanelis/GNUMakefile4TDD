@@ -35,7 +35,7 @@ main()
 
 		if [[ ${max_size} == 0x* ]];
 		then
-			max_size=$(echo ${max_size:2})
+			max_size="${max_size:2}"
 			max_size=$(( 16#$max_size ))
 		fi
 
@@ -45,8 +45,11 @@ main()
 
 	raw=$("${sizeTool}" "${file}")
 
+	# shellcheck disable=SC2086
 	text=$(echo ${raw} | cut -d ' ' -f 7)
+	# shellcheck disable=SC2086
 	data=$(echo ${raw} | cut -d ' ' -f 8)
+	# shellcheck disable=SC2086
 	bss=$(echo ${raw} | cut -d ' ' -f 9)
 
 	flash=$((text + data))

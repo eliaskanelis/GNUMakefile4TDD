@@ -1,3 +1,7 @@
+#include <stdint.h>
+#include <stddef.h>
+
+
 void _close( void );
 void _lseek( void );
 void _read( void );
@@ -35,20 +39,22 @@ void _isatty( void )
 {
 }
 
+extern uint8_t end; /* Set by linker.  */
+// cppcheck-suppress misra-c2012-8.9
+static uint8_t *heap_end = NULL;
+
 void *_sbrk( int incr )
 {
-	extern char   end; /* Set by linker.  */
-	static char *heap_end;
-	char         *prev_heap_end;
+	uint8_t *prev_heap_end;
 
-	if( heap_end == 0 )
+	if( heap_end == NULL )
 	{
-		heap_end = & end;
+		heap_end = ( uint8_t * ) &end;
 	}
 
 	prev_heap_end = heap_end;
 	heap_end += incr;
-	return ( void * ) prev_heap_end;
+	return ( void * )prev_heap_end;
 }
 
 void _exit( void )
