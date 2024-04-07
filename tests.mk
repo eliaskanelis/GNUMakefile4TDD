@@ -18,6 +18,9 @@ include $(MAKEFILE_FILEPATH)
 #    Functionality
 #
 
+# Output directory
+TEST_OUTDIR   := gen/tests/
+
 #.................................................
 #    Path
 
@@ -40,6 +43,10 @@ ifdef PORT_NAME
   TEST_C_SRCs   += $(shell find "port/posix/" -name "*.[c|C]")
   TEST_CXX_SRCs += $(shell find "port/posix/" -name "*.cpp")
 endif
+
+TEST_AS_SRCs    += $(foreach COMPONENT,$(COMPONENTS),$(shell find "components/$(COMPONENT)/src/" -name "*.[s|S]"))
+TEST_C_SRCs     += $(foreach COMPONENT,$(COMPONENTS),$(shell find "components/$(COMPONENT)/src/" -name "*.[c|C]"))
+TEST_CXX_SRCs   += $(foreach COMPONENT,$(COMPONENTS),$(shell find "components/$(COMPONENT)/src/" -name "*.cpp"))
 
 ifdef TESTS_EXIST
   TEST_AS_SRCs  += $(shell find "tests/" -name "*.[s|S]")
@@ -72,6 +79,10 @@ TEST_ASFLAGS    += $(ASFLAGS)
 TEST_CFLAGS     += $(CFLAGS)
 TEST_CXXFLAGS   += $(CXXFLAGS)
 TEST_LDFLAGS    += $(LDFLAGS)
+
+# CppUtest emits a lot of warnings
+# TODO: We ignore them for now.
+TEST_CPPFLAGS += -w
 
 #.................................................
 #    Toolchain

@@ -24,10 +24,6 @@ NM  = nm
 #    Flags
 #
 
-# TODO: This reduces code quality. Remove it.
-# Ignores all warnings
-CPPFLAGS += -w
-
 # Compiler errors and warnings
 CPPFLAGS += \
             -Werror -Wall -Wextra -Wshadow \
@@ -39,7 +35,14 @@ CPPFLAGS += \
             -Wunused-parameter -Wimplicit-fallthrough -Wunused-function \
             -fno-common -Wdouble-promotion
 
+# Linker warnings are treated as errors
+LDFLAGS += -Wl,--fatal-warnings
+
 CPPFLAGS += -Wmisleading-indentation -Wmaybe-uninitialized
+# CPPFLAGS += -Wpadded
+
+# Do not show more than a few errors at a time.
+CPPFLAGS += -fmax-errors=5
 
 CFLAGS += -Wmissing-prototypes # Valid only for C
 
@@ -51,7 +54,7 @@ CPPFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS += -Wl,--gc-sections
 
 # C language specification
-CFLAGS   += -std=c99
+CFLAGS += -std=c99
 
 # C++ language specification
 CXXFLAGS += -std=c++11

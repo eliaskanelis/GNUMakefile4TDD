@@ -17,6 +17,8 @@ NM  = arm-none-eabi-nm
 #.................................................
 #    Linker script
 
+AUX += port/$(PORT_NAME)/sys/STM32F072RBTx_FLASH.ld
+
 LDFLAGS  += -Tport/$(PORT_NAME)/sys/STM32F072RBTx_FLASH.ld
 
 #.................................................
@@ -28,8 +30,10 @@ LDFLAGS  += -lm
 #.................................................
 #    ARCH
 
-CPPFLAGS += -mcpu=cortex-m0\
+CPPFLAGS += -mcpu=cortex-m0 \
             -mthumb
+# LDFLAGS += -mcpu=cortex-m0 \
+#            -mthumb
 
 #.................................................
 #    TODO
@@ -42,11 +46,10 @@ LDFLAGS  += -u _scanf_float
 #LDFLAGS += -ffreestanding
 #LDFLAGS +=-nostdlib
 
-LDFLAGS+=-specs=nosys.specs
-#LDFLAGS+=-specs=nano.specs
-
-#LDFLAGS+=-lnosys
-#LDFLAGS+=-lrdimon
+#LDFLAGS +=-specs=nosys.specs
+#LDFLAGS +=-specs=nano.specs
+#LDFLAGS +=-lnosys
+#LDFLAGS +=-lrdimon
 
 ################################################################################
 #    Thirdparty
@@ -56,9 +59,12 @@ LDFLAGS+=-specs=nosys.specs
 #    CMSIS
 
 CPPFLAGS+=-DSTM32F072xB
-CPPFLAGS+=-Ithirdparty/CMSIS/Device/ST/STM32F0xx/Include/\
+CPPFLAGS+=-Ithirdparty/CMSIS/Device/ST/STM32F0xx/Include/ \
           -Ithirdparty/CMSIS/Include/
 
+# TODO: Fix the following warning
+# error: "__CORTEX_SC" is not defined, evaluates to 0 [-Werror=undef]
+CPPFLAGS += -D__CORTEX_SC=0
 
 ################################################################################
 #    Functions

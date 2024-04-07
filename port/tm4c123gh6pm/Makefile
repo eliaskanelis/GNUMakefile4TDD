@@ -17,6 +17,8 @@ NM  = arm-none-eabi-nm
 #.................................................
 #    Linker script
 
+AUX += port/$(PORT_NAME)/sys/TM4C123GH6PM.ld
+
 LDFLAGS  += -Tport/$(PORT_NAME)/sys/TM4C123GH6PM.ld
 
 #.................................................
@@ -28,8 +30,10 @@ LDFLAGS  += -lm
 #.................................................
 #    ARCH
 
-CPPFLAGS += -mcpu=cortex-m4\
+CPPFLAGS += -mcpu=cortex-m4 \
             -mthumb
+# LDFLAGS += -mcpu=cortex-m4 \
+#            -mthumb
 
 # FPU
 CPPFLAGS += -mfpu=fpv4-sp-d16
@@ -48,11 +52,14 @@ LDFLAGS  += -u _scanf_float
 #LDFLAGS += -ffreestanding
 #LDFLAGS +=-nostdlib
 
-LDFLAGS+=-specs=nosys.specs
-#LDFLAGS+=-specs=nano.specs
+#LDFLAGS +=-specs=nosys.specs
+#LDFLAGS +=-specs=nano.specs
+#LDFLAGS +=-lnosys
+#LDFLAGS +=-lrdimon
 
-#LDFLAGS+=-lnosys
-#LDFLAGS+=-lrdimon
+# TODO: This reduces code quality. Need to refactor code and solve warnings.
+# Ignores all warnings
+CPPFLAGS += -w
 
 ################################################################################
 #    Thirdparty

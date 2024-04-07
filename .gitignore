@@ -1,8 +1,5 @@
 # Generated files
-/bin
-/obj
-/doc
-/tmp
+/gen
 
 # Auto-generated files
 /inc/version.h

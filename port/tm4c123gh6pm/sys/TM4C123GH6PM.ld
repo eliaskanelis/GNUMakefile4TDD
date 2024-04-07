@@ -31,13 +31,22 @@
 * Web  : http://www.state-machine.com
 * Email: info@state-machine.com
 *****************************************************************************/
+
+/* Applied fix for: warning: *.elf has a LOAD segment with RWX permissions.
+ * https://community.st.com/t5/stm32cubeide-mcus/stm32cubeide-1-15-0-elf-has-a-load-segment-with-rwx-permissions/m-p/653501/highlight/true#M25467
+ */
+
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
-ENTRY(Reset_Handler) /* entry Point */
 
-MEMORY { /* memory map of Tiva TM4C123GH6PM */
-    ROM (rx)  : ORIGIN = 0x00000000, LENGTH = 256K
-    RAM (xrw) : ORIGIN = 0x20000000, LENGTH = 32K
+/* Entry Point */
+ENTRY(Reset_Handler)
+
+/* Specify the memory areas */
+MEMORY
+{
+    RAM (xrw)    : ORIGIN = 0x20000000, LENGTH = 32K
+    ROM (rx)     : ORIGIN = 0x00000000, LENGTH = 256K
 }
 
 /* The size of the stack used by the application. NOTE: you need to adjust  */
@@ -46,14 +55,17 @@ STACK_SIZE = 1024;
 /* The size of the heap used by the application. NOTE: you need to adjust   */
 HEAP_SIZE = 0;
 
-SECTIONS {
-
-    .isr_vector : {        /* the vector table goes FIRST into ROM */
+/* Define output sections */
+SECTIONS
+{
+    /* the Vector table goes FIRST into FLASH */
+    .isr_vector :
+    {
         KEEP(*(.isr_vector)) /* vector table */
         . = ALIGN(4);
     } >ROM
-
-    .text : {              /* code and constants */
+    /* code and constants */
+    .text : {
         . = ALIGN(4);
         *(.text)           /* .text sections (code) */
         *(.text*)          /* .text* sections (code) */
@@ -66,20 +78,23 @@ SECTIONS {
         . = ALIGN(4);
     } >ROM
 
-    .preinit_array : {
+    .preinit_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
+    {
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP (*(.preinit_array*))
         PROVIDE_HIDDEN (__preinit_array_end = .);
     } >ROM
 
-    .init_array : {
+    .init_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
+    {
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP (*(SORT(.init_array.*)))
         KEEP (*(.init_array*))
         PROVIDE_HIDDEN (__init_array_end = .);
     } >ROM
 
-    .fini_array : {
+    .fini_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
+    {
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP (*(.fini_array*))
         KEEP (*(SORT(.fini_array.*)))
@@ -95,8 +110,9 @@ SECTIONS {
         __stack_end__ = .;
     } >RAM
 
-    .data :  AT (_etext) {
-        __data_load = LOADADDR (.data);
+    .data :  AT (_etext)
+    {
+        __data_load = LOADADDR(.data);
         __data_start = .;
         *(.data)           /* .data sections */
         *(.data*)          /* .data* sections */
@@ -105,7 +121,8 @@ SECTIONS {
         _edata = __data_end__;
     } >RAM
 
-    .bss : {
+    .bss :
+    {
         __bss_start__ = .;
         *(.bss)
         *(.bss*)
@@ -131,7 +148,8 @@ SECTIONS {
     } >RAM
 
     /* Remove information from the standard libraries */
-    /DISCARD/ : {
+    /DISCARD/ :
+    {
         libc.a ( * )
         libm.a ( * )
         libgcc.a ( * )

@@ -296,25 +296,21 @@ APP_AS_SRCs  := $(sort $(APP_AS_SRCs))
 APP_C_SRCs   := $(sort $(APP_C_SRCs))
 APP_CXX_SRCs := $(sort $(APP_CXX_SRCs))
 
-
 #.................................................
 #    Output dir
 
 ifdef PORT_NAME
 
 ifdef TARGET
-    BIN_OUTDIR  := bin/$(PORT_NAME)/$(TARGET)/
-    OBJ_OUTDIR  := tmp/$(PORT_NAME)/$(TARGET)/obj/
-    TEST_OUTDIR := tmp/$(PORT_NAME)/$(TARGET)/test/
+    BIN_OUTDIR  := gen/build/$(PORT_NAME)/$(TARGET)/bin/
+    OBJ_OUTDIR  := gen/build/$(PORT_NAME)/$(TARGET)/obj/
   else
-    BIN_OUTDIR  := bin/$(PORT_NAME)/
-    OBJ_OUTDIR  := tmp/$(PORT_NAME)/obj/
-    TEST_OUTDIR := tmp/$(PORT_NAME)/test/
+    BIN_OUTDIR  := gen/build/$(PORT_NAME)/bin/
+    OBJ_OUTDIR  := gen/build/$(PORT_NAME)/obj/
   endif
 else
-  BIN_OUTDIR    := bin/
-  OBJ_OUTDIR    := tmp/obj/
-  TEST_OUTDIR   := tmp/test/
+  BIN_OUTDIR    := gen/build/bin/
+  OBJ_OUTDIR    := gen/build/obj/
 endif
 
 OBJS=  $(sort $(AS_SRCs:%.s=$(OBJ_OUTDIR)%.o))
@@ -351,6 +347,7 @@ endif
 COMPILE.AS  ?= $(AS)  -c $< -o $@ $(CPPFLAGS) $(ASFLAGS)
 COMPILE.CC  ?= $(CC)  -c $< -o $@ $(CPPFLAGS) $(CFLAGS)
 COMPILE.CXX ?= $(CXX) -c $< -o $@ $(CPPFLAGS) $(CXXFLAGS)
+LINK        ?= $(LD)     $^ -o $@ $(CPPFLAGS) $(LDFLAGS)
 
 ################################################################################
 #    Functions
@@ -443,9 +440,7 @@ clean:
 	@$(RM_RF) GPATH
 	@$(RM_RF) GRTAGS
 	py3clean .
-	@$(RM_RF) bin
-	@$(RM_RF) doc
-	@$(RM_RF) tmp
+	@$(RM_RF) gen
 	@$(ECHO) "Cleaned project"
 
 .PHONY: info
@@ -528,31 +523,11 @@ $(OBJ_OUTDIR)%.o: %.cpp $(OBJ_OUTDIR)%.d $(AUX)
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
 
-# Library
-$(BIN_OUTDIR)lib$(PROJ_NAME).a: $(OBJS)
-	$(call notify,"AR  ","$@")
-	@$(MKDIR_P) $(dir $@)
-	@$(AR) -rcs $@ $^
-	@$(ECHO_E) $(GREEN)"OK"$(RESET)
-
-
-$(BIN_OUTDIR)lib%.a: $(APP_OBJS)
-	$(call notify,"AR  ","$@")
-	@$(MKDIR_P) $(dir $@)
-	@$(AR) -rcs $@ $(call FILTER,$(OBJ_OUTDIR)apps/$(basename $(notdir $@))/,$^)
-#	@$(AR) -rcs $@ $^
-	@$(ECHO_E) $(GREEN)"OK"$(RESET)
-
-
 # Link
-$(BIN_OUTDIR)%.elf: $(APP_OBJS) | $(BIN_OUTDIR)lib$(PROJ_NAME).a
+$(BIN_OUTDIR)%.elf: $(APP_OBJS) $(OBJS)
 	$(call notify,"LD  ","$@")
 	@$(MKDIR_P) $(dir $@)
-	@$(LD) \
-               $(call FILTER,$(OBJ_OUTDIR)apps/$(basename $(notdir $@))/,$^) \
-               $(BIN_OUTDIR)lib$(PROJ_NAME).a -o $@ $(CPPFLAGS) $(LDFLAGS) \
-               2>&1 | $(TEE) $(@:%.o=%.err) \
-               | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
+	@$(LINK) 2>&1 | $(TEE) $(@:%.o=%.err) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
 
