@@ -10,12 +10,12 @@ embedded platform.
 
 It can be used for embedded development of for any non-embedded application.
 
-## WARNING
+## TODO
 
-I designed a better makefile based build system and in the next weeks/months it will be integrated here.
-This means that the current functionality will change after the update happens.
+Current plans are:
 
-Hint: The main change will be the use of python scripts to abstract tools such as linting, flashing, etc from the main functionality of the build system that is to compile and link.
+1. Integrate KConfig/KBuild from linux kernel. More changes to come soon.
+2. Use of python scripts to abstract tools such as linting, flashing, etc from the main functionality of the build system that is to compile and link.
 
 ## Goals
 
@@ -37,8 +37,7 @@ Hint: The main change will be the use of python scripts to abstract tools such a
 
 The filesystem of the project is opinionated and these are the main
 
-- **apps**: Source files that are part of a target. Each subdirectory a seperate target.
-- **bin**: Output binaries, libraries, map file not kept under version control.
+- **apps**: (optional): Source files that are part of a target. Each subdirectory a seperate target.
 - **components** (optional): Components that use the same opinionated filesystem. Usually git submodules.
 - **conf** (optional): Stored configurations for tools.
 - **inc**: Header files part of the output library.
@@ -47,7 +46,7 @@ The filesystem of the project is opinionated and these are the main
 - **src**: Source files part of the output library.
 - **tests** (optional): Test cases for the code written. (cpputest)
 - **thirdparty** (optional): Thirdparty code
-- **tmp**: Generated files not kept under version control.
+- **gen**: Generated files not kept under version control.
 
 ## Dependencies
 
@@ -80,14 +79,9 @@ make PORT_NAME=<port name>
 
 A ccputest based test will run at the end of every succesfull build.
 
-## Known bugs
-
-After v0.5 (Multi-target update): Intermediate files are automatically removed.
-
 ## License
 
 See `LICENSE` for more information.
-
 
 ## Contact
 
