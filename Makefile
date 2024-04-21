@@ -111,9 +111,12 @@ COMPILERMK_FILEPATH := $(MAKEFILE_DIRPATH)compiler.mk
 #.................................................
 #    Project's name
 
-APPS := $(sort $(notdir $(shell find "apps" -maxdepth 1 -type d -not -path "apps" -print)))
-DEFAULT_APP := $(firstword $(APPS))
 PROJ_NAME := $(shell basename $(MAKEFILE_DIRPATH))
+
+# App directory is optional.
+# So in case there is not any use proj as the app name
+APP_NAMES := $(sort $(notdir $(shell if [ -d "apps/" ]; then find "apps/" -maxdepth 1 -type d -not -path "apps" -print; fi)))
+DEFAULT_APP_NAME := $(if $(APP_NAMES),$(firstword $(APP_NAMES)),$(PROJ_NAMES))
 
 #.................................................
 #    Host's OS
@@ -182,6 +185,7 @@ AS  = gcc -x assembler-with-cpp
 CC  = gcc
 CXX = g++
 LD  = gcc
+AR  = ar
 SZ  = size
 OC  = objcopy
 NM  = nm
@@ -265,6 +269,10 @@ endif
 #.................................................
 #    Source
 
+AS_SRCs  += $(shell if [ -d "apps/" ]; then find "apps/" -type f -name '*.[s|S]'; fi)
+C_SRCs   += $(shell if [ -d "apps/" ]; then find "apps/" -type f -name '*.[c|C]'; fi)
+CXX_SRCs += $(shell if [ -d "apps/" ]; then find "apps/" -type f -name '*.cpp'; fi)
+
 AS_SRCs  += $(shell find "src/" -name "*.[s|S]")
 C_SRCs   += $(shell find "src/" -name "*.[c|C]")
 CXX_SRCs += $(shell find "src/" -name "*.cpp")
@@ -288,14 +296,6 @@ AS_SRCs  := $(sort $(AS_SRCs))
 C_SRCs   := $(sort $(C_SRCs))
 CXX_SRCs := $(sort $(CXX_SRCs))
 
-APP_AS_SRCs  += $(foreach APP,$(APPS),$(shell find "apps/$(APP)/" -name "*.[s|S]"))
-APP_C_SRCs   += $(foreach APP,$(APPS),$(shell find "apps/$(APP)/" -name "*.[c|C]"))
-APP_CXX_SRCs += $(foreach APP,$(APPS),$(shell find "apps/$(APP)/" -name "*.cpp"))
-
-APP_AS_SRCs  := $(sort $(APP_AS_SRCs))
-APP_C_SRCs   := $(sort $(APP_C_SRCs))
-APP_CXX_SRCs := $(sort $(APP_CXX_SRCs))
-
 #.................................................
 #    Output dir
 
@@ -316,10 +316,6 @@ endif
 OBJS=  $(sort $(AS_SRCs:%.s=$(OBJ_OUTDIR)%.o))
 OBJS+= $(sort $(C_SRCs:%.c=$(OBJ_OUTDIR)%.o))
 OBJS+= $(sort $(CXX_SRCs:%.cpp=$(OBJ_OUTDIR)%.o))
-
-APP_OBJS=  $(sort $(APP_AS_SRCs:%.s=$(OBJ_OUTDIR)%.o))
-APP_OBJS+= $(sort $(APP_C_SRCs:%.c=$(OBJ_OUTDIR)%.o))
-APP_OBJS+= $(sort $(APP_CXX_SRCs:%.cpp=$(OBJ_OUTDIR)%.o))
 
 #.................................................
 #    Includes
@@ -347,7 +343,6 @@ endif
 COMPILE.AS  ?= $(AS)  -c $< -o $@ $(CPPFLAGS) $(ASFLAGS)
 COMPILE.CC  ?= $(CC)  -c $< -o $@ $(CPPFLAGS) $(CFLAGS)
 COMPILE.CXX ?= $(CXX) -c $< -o $@ $(CPPFLAGS) $(CXXFLAGS)
-LINK        ?= $(LD)     $^ -o $@ $(CPPFLAGS) $(LDFLAGS)
 
 ################################################################################
 #    Functions
@@ -370,7 +365,7 @@ RUN_GTAGS =
 #endef
 
 define runApp
-  ./$(BIN_OUTDIR)$(DEFAULT_APP).elf
+  ./$(BIN_OUTDIR)$(DEFAULT_APP_NAME).elf
 endef
 
 # Function to calculate the size of the elf
@@ -388,7 +383,7 @@ all: build
 	@$(ECHO_E) $(GREEN)"Build finished succesfully"$(RESET)
 
 .PHONY: size
-size: $(BIN_OUTDIR)$(DEFAULT_APP).size
+size: $(BIN_OUTDIR)$(DEFAULT_APP_NAME).size
 	@$(CAT) $<
 	@$(ECHO)
 
@@ -416,11 +411,11 @@ ifndef PORT_NAME
   endif
 endif
 
-BUILD_APPS_ELF:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).elf)
-BUILD_APPS_BIN:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).bin)
-BUILD_APPS_HEX:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).hex)
-BUILD_APPS_SYM:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).sym)
-BUILD_APPS_SIZE:= $(foreach APP,$(APPS),$(BIN_OUTDIR)$(APP).size)
+BUILD_APPS_ELF  := $(foreach APP_NAME,$(APP_NAMES),$(BIN_OUTDIR)$(APP_NAME).elf)
+BUILD_APPS_BIN  := $(foreach APP_NAME,$(APP_NAMES),$(BIN_OUTDIR)$(APP_NAME).bin)
+BUILD_APPS_HEX  := $(foreach APP_NAME,$(APP_NAMES),$(BIN_OUTDIR)$(APP_NAME).hex)
+BUILD_APPS_SYM  := $(foreach APP_NAME,$(APP_NAMES),$(BIN_OUTDIR)$(APP_NAME).sym)
+BUILD_APPS_SIZE := $(foreach APP_NAME,$(APP_NAMES),$(BIN_OUTDIR)$(APP_NAME).size)
 
 .PHONY: build
 build: check \
@@ -465,15 +460,12 @@ info:
 	  do \
 	    echo "    $$i"; \
 	  done
-	@$(ECHO_E) $(BLUE)"APP_OBJS:"$(RESET)
-	for i in $(APP_OBJS) ; \
-	  do \
-	    echo "    $$i"; \
-	  done
 	@$(ECHO) ""
 	@$(ECHO_E) $(BLUE)"AS:  "$(RESET)$(COMPILE.AS)
 	@$(ECHO_E) $(BLUE)"CC:  "$(RESET)$(COMPILE.CC)
 	@$(ECHO_E) $(BLUE)"CXX: "$(RESET)$(COMPILE.CXX)
+	@$(ECHO) ""
+	@$(ECHO_E) $(BLUE)"COMPONENTS: "$(RESET)$(COMPONENTS)
 
 .PHONY: run
 run:
@@ -524,10 +516,13 @@ $(OBJ_OUTDIR)%.o: %.cpp $(OBJ_OUTDIR)%.d $(AUX)
 
 
 # Link
-$(BIN_OUTDIR)%.elf: $(APP_OBJS) $(OBJS)
+PRECIOUS: $(OBJS)
+$(BIN_OUTDIR)%.elf: $(OBJS)
 	$(call notify,"LD  ","$@")
 	@$(MKDIR_P) $(dir $@)
-	@$(LINK) 2>&1 | $(TEE) $(@:%.o=%.err) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
+	$(eval APP_OBJS := $(call FILTER,$(OBJ_OUTDIR)apps/$(basename $(notdir $@))/,$^))
+	$(eval COMMON_OBJS := $(call FILTER_OUT,$(OBJ_OUTDIR)apps/,$^))
+	@$(LD) $(APP_OBJS) $(COMMON_OBJS) -o $@ $(CPPFLAGS) $(LDFLAGS) 2>&1 | $(TEE) $(@:%.o=%.err) | $(XARGS_R0) $(ECHO_E) $(RED)"FAIL\n\n"$(RESET)
 	@$(ECHO_E) $(GREEN)"OK"$(RESET)
 
 
@@ -584,7 +579,6 @@ ifeq (0,${MAKELEVEL})
 
 # Manage auto-depedencies( this must be at the end )
 DEPS=$(OBJS:%.o=%.d)
-DEPS+=$(APP_OBJS:%.o=%.d)
 
 .PRECIOUS: $(DEPS)
 $(DEPS): $(AUX)

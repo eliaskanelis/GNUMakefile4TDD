@@ -6,6 +6,7 @@ AS  = $(CCACHE) arm-none-eabi-gcc -x assembler-with-cpp
 CC  = $(CCACHE) arm-none-eabi-gcc
 CXX = $(CCACHE) arm-none-eabi-g++
 LD  = arm-none-eabi-gcc
+AR  = arm-none-eabi-ar
 SZ  = arm-none-eabi-size
 OC  = arm-none-eabi-objcopy
 NM  = arm-none-eabi-nm
@@ -69,16 +70,16 @@ CPPFLAGS += -w
 #    CMSIS
 
 CPPFLAGS  += -DTM4C123GH6PM
-CPPFLAGS  += -Ithirdparty/CMSIS/Device/TI/TM4C/Include/\
+CPPFLAGS  += -Ithirdparty/CMSIS/Device/TI/TM4C/Include/ \
              -Ithirdparty/CMSIS/Include/
 
 #.................................................
 #    Tiva Libraries
 
-#CPPFLAGS  += -Ithirdparty/Tiva/driverlib\
+#CPPFLAGS  += -Ithirdparty/Tiva/driverlib \
 #             -Ithirdparty/Tiva/driverlib/gcc
 
-#LDFLAGS   += -L thirdparty/Tiva/driverlib/gcc\
+#LDFLAGS   += -L thirdparty/Tiva/driverlib/gcc \
 #             -ldriver
 
 
@@ -102,5 +103,5 @@ endef
 #
 
 .PHONY: flash
-flash: $(BIN_OUTDIR)$(DEFAULT_APP).bin
+flash: $(BIN_OUTDIR)$(DEFAULT_APP_NAME).bin
 	@lm4flash -v -E $<

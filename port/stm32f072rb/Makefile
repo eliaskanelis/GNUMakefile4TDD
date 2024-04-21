@@ -6,6 +6,7 @@ AS  = $(CCACHE) arm-none-eabi-gcc -x assembler-with-cpp
 CC  = $(CCACHE) arm-none-eabi-gcc
 CXX = $(CCACHE) arm-none-eabi-g++
 LD  = arm-none-eabi-gcc
+AR  = arm-none-eabi-ar
 SZ  = arm-none-eabi-size
 OC  = arm-none-eabi-objcopy
 NM  = arm-none-eabi-nm
@@ -94,7 +95,7 @@ flash: $(BIN_OUTDIR)flash.jlink
 	@JLinkExe -CommanderScript $<
 
 .PHONY: $(BIN_OUTDIR)flash.jlink
-$(BIN_OUTDIR)flash.jlink:  $(BIN_OUTDIR)$(DEFAULT_APP).bin
+$(BIN_OUTDIR)flash.jlink:  $(BIN_OUTDIR)$(DEFAULT_APP_NAME).bin
 	@$(ECHO) "si 1" > $@
 	@$(ECHO) "device STM32F072RB" >> $@
 	@$(ECHO) "speed 4000" >> $@
