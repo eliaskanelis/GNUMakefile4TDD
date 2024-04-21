@@ -34,9 +34,9 @@ TESTS_EXIST := $(shell find -maxdepth 1 -type d -name "tests" )
 #.................................................
 #    Gather of objects
 
-TEST_AS_SRCs     = $(shell find "src/" -name "*.[s|S]")
-TEST_C_SRCs      = $(filter-out %main.c,$(shell find "src/" -name "*.[c|C]"))
-TEST_CXX_SRCs    = $(filter-out %main.cpp,$(shell find "src/" -name "*.cpp"))
+TEST_AS_SRCs  += $(shell if [ -d "src/" ]; then find "src/" -type f -name '*.[s|S]'; fi)
+TEST_C_SRCs   += $(filter-out %main.c,$(shell if [ -d "src/" ]; then find "src/" -type f -name '*.[c|C]'; fi))
+TEST_CXX_SRCs += $(filter-out %main.cpp,$(shell if [ -d "src/" ]; then find "src/" -type f -name '*.cpp'; fi))
 
 ifdef PORT_NAME
   TEST_AS_SRCs  += $(shell find "port/posix/" -name "*.[s|S]")

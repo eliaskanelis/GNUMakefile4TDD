@@ -116,7 +116,7 @@ PROJ_NAME := $(shell basename $(MAKEFILE_DIRPATH))
 # App directory is optional.
 # So in case there is not any use proj as the app name
 APP_NAMES := $(sort $(notdir $(shell if [ -d "apps/" ]; then find "apps/" -maxdepth 1 -type d -not -path "apps" -print; fi)))
-DEFAULT_APP_NAME := $(if $(APP_NAMES),$(firstword $(APP_NAMES)),$(PROJ_NAMES))
+DEFAULT_APP_NAME := $(if $(APP_NAMES),$(firstword $(APP_NAMES)),$(PROJ_NAME))
 
 #.................................................
 #    Host's OS
@@ -273,9 +273,9 @@ AS_SRCs  += $(shell if [ -d "apps/" ]; then find "apps/" -type f -name '*.[s|S]'
 C_SRCs   += $(shell if [ -d "apps/" ]; then find "apps/" -type f -name '*.[c|C]'; fi)
 CXX_SRCs += $(shell if [ -d "apps/" ]; then find "apps/" -type f -name '*.cpp'; fi)
 
-AS_SRCs  += $(shell find "src/" -name "*.[s|S]")
-C_SRCs   += $(shell find "src/" -name "*.[c|C]")
-CXX_SRCs += $(shell find "src/" -name "*.cpp")
+AS_SRCs  += $(shell if [ -d "src/" ]; then find "src/" -type f -name '*.[s|S]'; fi)
+C_SRCs   += $(shell if [ -d "src/" ]; then find "src/" -type f -name '*.[c|C]'; fi)
+CXX_SRCs += $(shell if [ -d "src/" ]; then find "src/" -type f -name '*.cpp'; fi)
 
 ifdef PORT_NAME
   AS_SRCs  += $(shell find "port/$(PORT_NAME)/" -name "*.[s|S]")
