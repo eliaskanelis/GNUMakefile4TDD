@@ -16,7 +16,7 @@
 #
 #    - inc:        Mandatory directory that includes to hardware independent
 #                  code.
-#    - src:        Mandatory directory that holds hardware independent code.
+#    - src:        Optional directory that holds hardware independent code.
 #    - port:       Optional directory that holds hardware dependent code.
 #    - components: Optional directory for software components.
 #                  Normally it is a git submodule pointing to the platform.
