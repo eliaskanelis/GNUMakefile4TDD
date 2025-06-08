@@ -53,6 +53,9 @@ CPPFLAGS += -fstack-usage -Wstack-protector -Wstack-usage=50
 CPPFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS += -Wl,--gc-sections
 
+# Map file (replace elf suffix if it exists)
+LDFLAGS += -Wl,-Map,$(if $(findstring .elf,$@),$(@:%.elf=%.map),$@.map)
+
 # C language specification
 CFLAGS += -std=c99
 
@@ -73,3 +76,7 @@ endif
 ifeq ($(TARGET),rel)
   CPPFLAGS+=-O3 -DNDEBUG
 endif
+
+################################################################################
+#    Configuration
+#

@@ -15,6 +15,7 @@ steps:
       if [ "$(git symbolic-ref --short HEAD)" != "master" ]; then
         git fetch origin master:master
       fi
+
   - git fetch --tags
   - chown -R 1000:1000 .
 
