@@ -108,6 +108,9 @@ TESTSMK_FILEPATH := $(MAKEFILE_DIRPATH)tests.mk
 
 COMPILERMK_FILEPATH := $(MAKEFILE_DIRPATH)compiler.mk
 
+# KConfig
+KCONFIG_FILEPATH := Kconfig
+
 #.................................................
 #    Project's name
 
@@ -176,6 +179,9 @@ GTAGS    := gtags
 SED      := sed
 RLWRAP   := rlwrap -I -R -a -A --no-warnings
 CAT      := cat
+AWK      := awk
+
+HAS_MENUCONFIG := $(shell command -v menuconfig 2>/dev/null)
 
 ################################################################################
 #    Default toolchain
@@ -260,6 +266,10 @@ endif
 
 AUX = $(MAKEFILE_FILEPATH) $(COMPILERMK_FILEPATH)
 
+ifneq ($(wildcard $(KCONFIG_FILEPATH)),)
+  AUX += $(CONFIG_FILEPATH)
+endif
+
 ifdef PORT_NAME
   ifneq (,$(wildcard port/$(PORT_NAME)/Makefile))
     AUX += port/$(PORT_NAME)/Makefile
@@ -316,6 +326,32 @@ endif
 OBJS=  $(sort $(AS_SRCs:%.s=$(OBJ_OUTDIR)%.o))
 OBJS+= $(sort $(C_SRCs:%.c=$(OBJ_OUTDIR)%.o))
 OBJS+= $(sort $(CXX_SRCs:%.cpp=$(OBJ_OUTDIR)%.o))
+
+#.................................................
+#    Kconfig options
+
+CONFIG_FILEPATH := $(MAKEFILE_DIRPATH).config
+COMPONENT_KCONFIGS :=
+ifneq ($(wildcard $(KCONFIG_FILEPATH)),)
+  # Check tool is installed
+  ifeq ($(HAS_MENUCONFIG),)
+    $(error "menuconfig not found in PATH. Please install it.")
+  endif
+
+  # Check configuration
+  ifeq ($(filter menuconfig defaultconfig clean,$(MAKECMDGOALS)),)
+    ifeq ($(wildcard $(CONFIG_FILEPATH)),)
+      $(error Please create the configuration file by running 'make menuconfig'.)
+    endif
+  endif
+
+  # Define the configuration file
+  # Extract configurations and populate CPPFLAGS
+  CPPFLAGS += $(shell $(AWK) -F '=' '/^CONFIG_/ { printf("-D%s=%s ", $$1, $$2 == "y" ? "1" : $$2) }' $(CONFIG_FILEPATH))
+
+  # Gather all Kconfig files from components
+  COMPONENT_KCONFIGS = $(sort $(shell if [ -d "components/" ]; then find "components/" -type f -name 'Kconfig.local'; fi))
+endif
 
 #.................................................
 #    Includes
@@ -377,6 +413,10 @@ endef
 ################################################################################
 #    Rules
 #
+
+.PHONY: FORCE
+FORCE:
+	@:
 
 .PHONY: all
 all: build
@@ -474,6 +514,39 @@ run:
 	@else
 		@$(RLWRAP) -f commands -H .cmd_history $(call runApp)
 	@fi
+
+
+gen/$(KCONFIG_FILEPATH): $(COMPONENT_KCONFIGS) | FORCE
+	$(call notify,"GEN ","$@")
+	@$(MKDIR_P) $(dir $@)
+	@$(ECHO) "" > $@
+	@if [ -n "$(COMPONENT_KCONFIGS)" ]; then \
+            echo "menu \"components\"" >> $@; \
+            for COMPONENT_KCONFIG in $^; do \
+                echo "# $${COMPONENT_KCONFIG}" >> $@; \
+                echo "menu \"$${COMPONENT_KCONFIG}\"" >> $@; \
+                echo "source \"$${COMPONENT_KCONFIG}\"" >> $@; \
+                echo "endmenu" >> $@; \
+            done; \
+            echo "endmenu" >> $@; \
+	fi
+	@$(ECHO_E) $(GREEN)"OK"$(RESET)
+
+
+ifneq ($(wildcard $(KCONFIG_FILEPATH)),)
+.PHONY: menuconfig
+menuconfig: gen/$(KCONFIG_FILEPATH)
+	@$(MKDIR_P) $(dir $(CONFIG_FILEPATH))
+	@KCONFIG_CONFIG=$(CONFIG_FILEPATH) menuconfig $(KCONFIG_FILEPATH)
+endif
+
+
+ifneq ($(wildcard $(KCONFIG_FILEPATH)),)
+.PHONY: defaultconfig
+defaultconfig: gen/$(KCONFIG_FILEPATH)
+	@$(MKDIR_P) $(dir $(CONFIG_FILEPATH))
+	@KCONFIG_CONFIG=$(CONFIG_FILEPATH) alldefconfig $(KCONFIG_FILEPATH)
+endif
 
 
 ################################################################################

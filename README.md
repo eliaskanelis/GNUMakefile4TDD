@@ -14,7 +14,7 @@ It can be used for embedded development of for any non-embedded application.
 
 Current plans are:
 
-1. Integrate KConfig/KBuild from linux kernel. More changes to come soon.
+1. Integrate KBuild from linux kernel. More changes to come soon.
 2. Use of python scripts to abstract tools such as linting, flashing, etc from the main functionality of the build system that is to compile and link.
 
 ## Goals
@@ -22,11 +22,14 @@ Current plans are:
 - [x] Test driven development (cppUtest)
 - [x] Multi-architecture Build (GNU/Linux & micro-controller)
 - [x] Multiple targets
-- [ ] Lint (pc-lint, cppcheck etc)
-- [ ] Documentation generation (doxygen)
+- [x] Kconfig
+- [ ] Kbuild
+- [x] Lint (cppcheck)
+- [ ] Lint (pc-lint)
+- [x] Documentation generation (doxygen)
 - [x] Flash, erase etc. micro-controller
 - [x] Debugging (gdb or other)
-- [x] Auto versioning( git or other )
+- [x] Auto versioning (git or other)
 - [x] Color output
 - [x] Support C/C++ and assembly.
 - [ ] Support Rust. Experimental feature.
@@ -77,11 +80,11 @@ make PORT_NAME=<port name>
 
 ### Test driver development
 
-A ccputest based test will run at the end of every succesfull build.
+A cpputest based test will run at the end of every succesfull build.
 
 ## License
 
-See `LICENSE` for more information.
+[FOSS](LICENSE) © Kanelis Elias
 
 ## Contact
 

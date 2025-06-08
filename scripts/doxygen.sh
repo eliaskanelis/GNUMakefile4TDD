@@ -10,7 +10,7 @@ mkdir -p "gen/doc/html"
 export PROJECT_NUMBER="Beta"
 export PROJECT_NAME="Untitled"
 export PROJECT_BRIEF=""
-export PROJECT_LOGO=""
+export PROJECT_LOGO="../../media/logo.png"
 export PROJECT_OUTPUT="../../gen/doc"
 
 (cd conf/doxygen/ && doxygen)
