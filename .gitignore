@@ -4,3 +4,11 @@
 # Auto-generated files
 /inc/version.h
 /.cmd_history
+
+# Kconfig
+/.config
+/.config.old
+
+# Python
+__pycache__
+/.venv
