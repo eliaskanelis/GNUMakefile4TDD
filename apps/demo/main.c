@@ -6,30 +6,30 @@
 // ############################################################################
 // Include files
 
-#include <stdio.h>
-
 #include "bsp.h"
 #include "version.h"
+
+#include <stdio.h>
 
 // ############################################################################
 // ############################################################################
 // Function definitions
 
 
-int main( void )
+int main(void)
 {
-	( void )printf( "Hello world!\n" );
-	( void )printf( "Board name: %s!\n", bsp_getName() );
-	( void )printf( "Version:    v%s\n", VERSION );
+	(void)printf("Hello world!\n");
+	(void)printf("Board name: %s!\n", bsp_getName());
+	(void)printf("Version:    v%s\n", VERSION);
 
 	bsp_init();
 
-	for( int i = 25; i > 0; i-- )
+	for (int i = 25; i > 0; i--)
 	{
 		bsp_led_on();
-		bsp_delay( 100000 );
+		bsp_delay(100000);
 		bsp_led_off();
-		bsp_delay( 100000 );
+		bsp_delay(100000);
 	}
 
 	bsp_led_on();
